@@ -1,4 +1,4 @@
-﻿using DataAuditing.Middlewares;
+﻿using EntityGuardian.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 

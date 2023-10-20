@@ -1,4 +1,4 @@
-﻿using DataAuditing.Interfaces;
+﻿using EntityGuardian.Interfaces;
 using EntityGuardian.Storages;
 using System;
 

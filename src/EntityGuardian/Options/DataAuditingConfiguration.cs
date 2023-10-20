@@ -1,7 +1,7 @@
-﻿using DataAuditing.Interfaces;
-using EntityGuardian.Enums;
+﻿using EntityGuardian.Enums;
+using EntityGuardian.Interfaces;
 
-namespace DataAuditing.Options
+namespace EntityGuardian.Options
 {
     public class DataAuditingConfiguration : IDataAuditingConfiguration
     {

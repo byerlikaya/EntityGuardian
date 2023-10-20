@@ -1,6 +1,6 @@
-﻿using DataAuditing.Interfaces;
-using DataAuditing.Options;
-using DataAuditing.Utilities;
+﻿using EntityGuardian.Interfaces;
+using EntityGuardian.Options;
+using EntityGuardian.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;

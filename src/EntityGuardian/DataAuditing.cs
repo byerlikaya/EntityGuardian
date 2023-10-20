@@ -1,6 +1,6 @@
 ﻿using Castle.DynamicProxy;
-using DataAuditing.Utilities;
 using EntityGuardian.Entities;
+using EntityGuardian.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,4 +1,4 @@
-﻿namespace DataAuditing.Storages
+﻿namespace EntityGuardian.Storages
 {
     public interface IStorage
     {

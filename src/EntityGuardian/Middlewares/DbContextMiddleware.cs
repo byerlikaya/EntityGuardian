@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
-namespace DataAuditing.Middlewares
+namespace EntityGuardian.Middlewares
 {
     public class DbContextMiddleware<TContext>
         where TContext : DbContext

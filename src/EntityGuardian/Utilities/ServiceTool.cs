@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace DataAuditing.Utilities
+namespace EntityGuardian.Utilities
 {
     public static class ServiceTool
     {

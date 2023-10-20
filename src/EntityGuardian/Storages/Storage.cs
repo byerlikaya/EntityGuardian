@@ -1,4 +1,4 @@
-﻿using DataAuditing.Storages.SqlServer;
+﻿using EntityGuardian.Storages.SqlServer;
 
 namespace EntityGuardian.Storages
 {

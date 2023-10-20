@@ -5,7 +5,7 @@ using System.Data.Common;
 using System.IO;
 using System.Reflection;
 
-namespace DataAuditing.Storages.SqlServer
+namespace EntityGuardian.Storages.SqlServer
 {
     public class SqlServerInstaller : IStorage
     {

@@ -1,8 +1,8 @@
 ﻿using Autofac;
-using DataAuditing.Options;
 using EntityGuardian.DependencyResolvers;
 using EntityGuardian.Enums;
 using EntityGuardian.Extensions;
+using EntityGuardian.Options;
 using Microsoft.OpenApi.Models;
 using Sample.Api.ApplicationSpecific;
 using Sample.Api.ApplicationSpecific.Contexts;

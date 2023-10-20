@@ -1,4 +1,4 @@
-﻿namespace DataAuditing.Interfaces
+﻿namespace EntityGuardian.Interfaces
 {
     public interface IDataAuditingConfiguration
     {
