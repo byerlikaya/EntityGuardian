@@ -8,5 +8,6 @@ namespace EntityGuardian.Utilities
         public static IServiceProvider ServiceProvider { get; set; }
 
         public static void Create(IServiceCollection services) => ServiceProvider = services.BuildServiceProvider();
+
     }
 }

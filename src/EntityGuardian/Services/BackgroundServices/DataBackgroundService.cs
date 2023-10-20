@@ -1,21 +1,27 @@
 ﻿using Cronos;
+using EntityGuardian.Interfaces;
+using EntityGuardian.Options;
+using EntityGuardian.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EntityGuardian.BackgroundServices
+namespace EntityGuardian.Services.BackgroundServices
 {
     public class DataBackgroundService : BackgroundService
     {
-        private const string CronExpression = "0/30 * * * * ?"; // 30 seconds
         private DateTime _nextRunTime = DateTime.UtcNow;
+        private readonly IStorageService _storageService = ServiceTool.ServiceProvider.GetService<IStorageService>();
+        private static readonly EntityGuardianConfiguration Configuration = ServiceTool.ServiceProvider.GetService<EntityGuardianConfiguration>();
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(GetDelayTime(), cancellationToken);
+                _storageService.Create();
                 _nextRunTime = GetNextDate();
             }
         }
@@ -36,7 +42,7 @@ namespace EntityGuardian.BackgroundServices
 
         private static DateTime GetNextDate()
         {
-            var cron = Cronos.CronExpression.Parse(CronExpression, CronFormat.IncludeSeconds);
+            var cron = CronExpression.Parse(Configuration.CronExpression, CronFormat.IncludeSeconds);
             var next = cron.GetNextOccurrence(DateTime.UtcNow);
             return next ?? DateTime.UtcNow;
         }

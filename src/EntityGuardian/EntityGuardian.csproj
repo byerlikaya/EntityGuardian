@@ -18,10 +18,10 @@
 
   <ItemGroup>
     <Folder Include="Dashboard\" />
-    <Folder Include="Storages\MongoDb\" />
-    <Folder Include="Storages\MySQL\" />
-    <Folder Include="Storages\PostgreSQL\" />
-    <Folder Include="Storages\Redis\" />
+    <Folder Include="Services\StorageServices\MongoDb\" />
+    <Folder Include="Services\StorageServices\MySQL\" />
+    <Folder Include="Services\StorageServices\PostgreSQL\" />
+    <Folder Include="Services\StorageServices\Redis\" />
   </ItemGroup>
 
 </Project>

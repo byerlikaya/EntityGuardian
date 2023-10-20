@@ -1,8 +1,6 @@
 ﻿using Autofac;
 using EntityGuardian.DependencyResolvers;
-using EntityGuardian.Enums;
 using EntityGuardian.Extensions;
-using EntityGuardian.Options;
 using Microsoft.OpenApi.Models;
 using Sample.Api.ApplicationSpecific;
 using Sample.Api.ApplicationSpecific.Contexts;
@@ -36,13 +34,9 @@ namespace Sample.Api
 
             services.AddEntityGuardian(configuration =>
             {
-                var entityGuardianConfiguration = new EntityGuardianConfiguration
-                {
-                    StorageType = StorageType.SQLServer,
-                    DashboardUrl = "deneme"
-                };
-
-                configuration.UseSqlServerStorage(Configuration.GetConnectionString("SqlServerConnection"));
+                configuration.DashboardUrl = "deneme";
+                configuration.CronExpression = "0/5 * * * * ?"; // 5 seconds
+                configuration.UseSqlServerStorage(services, Configuration.GetConnectionString("SqlServerConnection"));
             });
 
 

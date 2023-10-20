@@ -1,6 +1,6 @@
 ﻿namespace EntityGuardian.Interfaces
 {
-    internal interface ICacheManager
+    public interface ICacheManager
     {
         T Get<T>(string key);
 

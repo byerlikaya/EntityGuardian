@@ -1,11 +1,9 @@
-﻿using EntityGuardian.Enums;
-using EntityGuardian.Interfaces;
-
-namespace EntityGuardian.Options
+﻿namespace EntityGuardian.Options
 {
-    public class EntityGuardianConfiguration : IEntityGuardianConfiguration
+    public class EntityGuardianConfiguration
     {
-        public StorageType StorageType { get; set; }
         public string DashboardUrl { get; set; }
+
+        public string CronExpression { get; set; }
     }
 }

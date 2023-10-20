@@ -1,7 +1,7 @@
 ﻿using EntityGuardian.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace EntityGuardian.Storages
+namespace EntityGuardian.Services.StorageServices
 {
     internal class CacheManager : ICacheManager
     {
