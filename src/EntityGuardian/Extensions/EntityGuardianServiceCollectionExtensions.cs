@@ -1,9 +1,11 @@
-﻿using EntityGuardian.Interfaces;
+﻿using EntityGuardian.BackgroundServices;
+using EntityGuardian.Interfaces;
 using EntityGuardian.Options;
 using EntityGuardian.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using System;
 
 namespace EntityGuardian.Extensions
@@ -27,6 +29,8 @@ namespace EntityGuardian.Extensions
             });
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.TryAddSingleton<IHostedService, DataBackgroundService>();
 
             ServiceTool.Create(services);
 
