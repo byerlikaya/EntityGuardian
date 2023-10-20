@@ -2,7 +2,7 @@
 {
     public enum StorageType
     {
-        MsSQL,
+        SQLServer,
         MySQL,
         PostreSQL,
         MongoDb,

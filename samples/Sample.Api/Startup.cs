@@ -34,11 +34,11 @@ namespace Sample.Api
 
             services.AddTransient<ITestRepository, TestRepository>();
 
-            services.AddDataAuditing(configuration =>
+            services.AddEntityGuardian(configuration =>
             {
-                var dataAuditingOptions = new DataAuditingConfiguration
+                var entityGuardianConfiguration = new EntityGuardianConfiguration
                 {
-                    StorageType = StorageType.MsSQL,
+                    StorageType = StorageType.SQLServer,
                     DashboardUrl = "deneme"
                 };
 
@@ -58,7 +58,7 @@ namespace Sample.Api
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api4 v1"));
             }
 
-            app.UseDataAuditing<MemoryDbContext>();
+            app.UseEntityGuardian<MemoryDbContext>();
 
             app.UseHttpsRedirection();
 
@@ -77,7 +77,7 @@ namespace Sample.Api
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            builder.RegisterModule(new DataAuditingBusinessModule());
+            builder.RegisterModule(new EntityGuardianBusinessModule());
         }
     }
 }

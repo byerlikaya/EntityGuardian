@@ -6,7 +6,7 @@ namespace EntityGuardian.Extensions
 {
     public static class StorageExtensions
     {
-        public static IDataAuditingConfiguration UseSqlServerStorage(this IDataAuditingConfiguration options,
+        public static IEntityGuardianConfiguration UseSqlServerStorage(this IEntityGuardianConfiguration options,
             string nameOrConnectionString)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));

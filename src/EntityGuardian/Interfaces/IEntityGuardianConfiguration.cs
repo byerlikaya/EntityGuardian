@@ -1,6 +1,6 @@
 ﻿namespace EntityGuardian.Interfaces
 {
-    public interface IDataAuditingConfiguration
+    public interface IEntityGuardianConfiguration
     {
     }
 }

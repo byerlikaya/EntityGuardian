@@ -24,7 +24,7 @@ namespace EntityGuardian.Storages.SqlServer
         }
 
         private static string GetSqlScript()
-            => GetStringResource(typeof(SqlServerInstaller).GetTypeInfo().Assembly, "DataAuditing.Storages.SqlServer.Install.sql");
+            => GetStringResource(typeof(SqlServerInstaller).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");
 
         private static string GetStringResource(Assembly assembly, string resourceName)
         {

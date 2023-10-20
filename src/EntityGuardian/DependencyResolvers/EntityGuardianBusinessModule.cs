@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace EntityGuardian.DependencyResolvers
 {
-    public class DataAuditingBusinessModule : Autofac.Module
+    public class EntityGuardianBusinessModule : Autofac.Module
     {
         protected override void Load(ContainerBuilder builder)
         {

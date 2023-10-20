@@ -13,13 +13,13 @@ using System.Threading.Tasks;
 namespace EntityGuardian
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Assembly, AllowMultiple = true, Inherited = true)]
-    public class DataAuditing : Attribute, IInterceptor
+    public class EntityGuardian : Attribute, IInterceptor
     {
         private ChangeWrapper _changeWrapper;
         private readonly DbContext _dbContext;
         private readonly string _ipAddress;
 
-        public DataAuditing()
+        public EntityGuardian()
         {
             var httpContextAccessor = ServiceTool.ServiceProvider.GetService<IHttpContextAccessor>();
 

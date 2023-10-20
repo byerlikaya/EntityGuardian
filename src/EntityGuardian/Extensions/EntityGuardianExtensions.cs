@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EntityGuardian.Extensions
 {
-    public static class DataAuditingExtensions
+    public static class EntityGuardianExtensions
     {
-        public static void UseDataAuditing<TContext>(this IApplicationBuilder app)
+        public static void UseEntityGuardian<TContext>(this IApplicationBuilder app)
             where TContext : DbContext
             => app.UseMiddleware<DbContextMiddleware<TContext>>();
     }

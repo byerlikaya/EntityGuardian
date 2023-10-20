@@ -8,18 +8,18 @@ using System;
 
 namespace EntityGuardian.Extensions
 {
-    public static class DataAuditingServiceCollectionExtensions
+    public static class EntityGuardianServiceCollectionExtensions
     {
-        public static IServiceCollection AddDataAuditing(
+        public static IServiceCollection AddEntityGuardian(
             this IServiceCollection services,
-            Action<IDataAuditingConfiguration> configuration)
+            Action<IEntityGuardianConfiguration> configuration)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
-            services.AddSingleton<IDataAuditingConfiguration>(config =>
+            services.AddSingleton<IEntityGuardianConfiguration>(config =>
             {
-                var configurationInstance = new DataAuditingConfiguration();
+                var configurationInstance = new EntityGuardianConfiguration();
 
                 configuration(configurationInstance);
 

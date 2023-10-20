@@ -3,7 +3,7 @@ using EntityGuardian.Interfaces;
 
 namespace EntityGuardian.Options
 {
-    public class DataAuditingConfiguration : IDataAuditingConfiguration
+    public class EntityGuardianConfiguration : IEntityGuardianConfiguration
     {
         public StorageType StorageType { get; set; }
         public string DashboardUrl { get; set; }
