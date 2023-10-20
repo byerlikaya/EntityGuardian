@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace EntityGuardian.Services.StorageServices
+namespace EntityGuardian.Utilities
 {
     internal class CacheManager : ICacheManager
     {

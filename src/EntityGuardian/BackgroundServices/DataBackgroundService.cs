@@ -8,12 +8,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EntityGuardian.Services.BackgroundServices
+namespace EntityGuardian.BackgroundServices
 {
     public class DataBackgroundService : BackgroundService
     {
 
-        private readonly EntityGuardianConfiguration _configuration = ServiceTool.ServiceProvider.GetService<EntityGuardianConfiguration>();
+        private readonly EntityGuardianOption _configuration = ServiceTool.ServiceProvider.GetService<EntityGuardianOption>();
         private DateTime _nextRunTime = DateTime.UtcNow;
         private readonly IStorageService _storageService = ServiceTool.ServiceProvider.GetService<IStorageService>();
 

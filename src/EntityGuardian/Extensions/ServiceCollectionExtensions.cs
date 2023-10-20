@@ -1,7 +1,6 @@
-﻿using EntityGuardian.Interfaces;
+﻿using EntityGuardian.BackgroundServices;
+using EntityGuardian.Interfaces;
 using EntityGuardian.Options;
-using EntityGuardian.Services.BackgroundServices;
-using EntityGuardian.Services.StorageServices;
 using EntityGuardian.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,14 +13,14 @@ namespace EntityGuardian.Extensions
     public static class ServiceCollectionExtensions
     {
         public static void AddEntityGuardian(this IServiceCollection services,
-            Action<EntityGuardianConfiguration> configuration)
+            Action<EntityGuardianOption> configuration)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
-            services.AddSingleton<EntityGuardianConfiguration>(_ =>
+            services.AddSingleton<EntityGuardianOption>(_ =>
             {
-                var configurationInstance = new EntityGuardianConfiguration();
+                var configurationInstance = new EntityGuardianOption();
 
                 configuration(configurationInstance);
 
