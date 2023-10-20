@@ -1,10 +1,10 @@
-﻿namespace EntityGuardian.Interfaces
-{
-    public interface ICacheManager
-    {
-        T Get<T>(string key);
+﻿using System.Collections.Generic;
 
-        object Get(string key);
+namespace EntityGuardian.Interfaces
+{
+    internal interface ICacheManager
+    {
+        List<(string key, T data)> GetList<T>(string mainKey);
 
         void Add(string key, object data);
 

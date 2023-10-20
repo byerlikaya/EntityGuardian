@@ -12,16 +12,17 @@ namespace EntityGuardian.Services.BackgroundServices
 {
     public class DataBackgroundService : BackgroundService
     {
+
+        private readonly EntityGuardianConfiguration _configuration = ServiceTool.ServiceProvider.GetService<EntityGuardianConfiguration>();
         private DateTime _nextRunTime = DateTime.UtcNow;
         private readonly IStorageService _storageService = ServiceTool.ServiceProvider.GetService<IStorageService>();
-        private static readonly EntityGuardianConfiguration Configuration = ServiceTool.ServiceProvider.GetService<EntityGuardianConfiguration>();
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(GetDelayTime(), cancellationToken);
-                _storageService.Create();
+                await _storageService.CreateAsync();
                 _nextRunTime = GetNextDate();
             }
         }
@@ -40,9 +41,9 @@ namespace EntityGuardian.Services.BackgroundServices
             return (int)delayTime;
         }
 
-        private static DateTime GetNextDate()
+        private DateTime GetNextDate()
         {
-            var cron = CronExpression.Parse(Configuration.CronExpression, CronFormat.IncludeSeconds);
+            var cron = CronExpression.Parse(_configuration.CronExpression, CronFormat.IncludeSeconds);
             var next = cron.GetNextOccurrence(DateTime.UtcNow);
             return next ?? DateTime.UtcNow;
         }

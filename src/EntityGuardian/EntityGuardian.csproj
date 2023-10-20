@@ -5,6 +5,14 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Services\StorageServices\SqlServer\Install.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Services\StorageServices\SqlServer\Install.sql" />
+  </ItemGroup>
+
 <ItemGroup>
   <PackageReference Include="Autofac.Extras.DynamicProxy" Version="7.1.0" />
   <PackageReference Include="Cronos" Version="0.7.1" />

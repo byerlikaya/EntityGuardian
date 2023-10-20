@@ -75,6 +75,8 @@ namespace EntityGuardian
                     {
                         _changeWrapper.Changes.Add(new Change
                         {
+                            Guid = Guid.NewGuid(),
+                            ChangeWrapperGuid = _changeWrapper.Guid,
                             ActionType = "INSERT",
                             NewData = JsonSerializer.Serialize(entityEntry.Entity),
                             OldData = string.Empty,
@@ -98,6 +100,8 @@ namespace EntityGuardian
 
                             _changeWrapper.Changes.Add(new Change
                             {
+                                Guid = Guid.NewGuid(),
+                                ChangeWrapperGuid = _changeWrapper.Guid,
                                 ActionType = "UPDATE",
                                 NewData = JsonSerializer.Serialize(currentEntity),
                                 OldData = JsonSerializer.Serialize(dbEntity),
@@ -111,6 +115,8 @@ namespace EntityGuardian
                     {
                         _changeWrapper.Changes.Add(new Change
                         {
+                            Guid = Guid.NewGuid(),
+                            ChangeWrapperGuid = _changeWrapper.Guid,
                             ActionType = "DELETE",
                             NewData = JsonSerializer.Serialize(entityEntry.Entity),
                             OldData = string.Empty,
@@ -123,10 +129,10 @@ namespace EntityGuardian
                 }
             }
 
-            var key = $"ChangeWrapper_{_dbContext.ContextId}";
+            var key = $"{nameof(ChangeWrapper)}_{_dbContext.ContextId}";
 
             if (_cacheManager.IsExists(key))
-                key = $"ChangeWrapper_{new Random().Next(0, 10000)}_{_dbContext.ContextId}";
+                key = $"{key}_{new Random().Next(0, 99999)}";
 
             _cacheManager.Add(key, _changeWrapper);
 
