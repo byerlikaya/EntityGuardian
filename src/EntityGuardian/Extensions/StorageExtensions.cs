@@ -1,21 +1,32 @@
 ﻿using EntityGuardian.Interfaces;
-using EntityGuardian.Storages;
+using EntityGuardian.Options;
+using EntityGuardian.Services.StorageServices.SqlServer;
+using EntityGuardian.Utilities;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Data;
 
 namespace EntityGuardian.Extensions
 {
     public static class StorageExtensions
     {
-        public static IEntityGuardianConfiguration UseSqlServerStorage(this IEntityGuardianConfiguration options,
-            string nameOrConnectionString)
+        public static void UseSqlServerStorage(
+            this EntityGuardianConfiguration options,
+            IServiceCollection services,
+            string connectionString)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
-            if (nameOrConnectionString == null) throw new ArgumentNullException(nameof(nameOrConnectionString));
+            if (connectionString == null) throw new ArgumentNullException(nameof(connectionString));
 
-            var storage = new Storage(nameOrConnectionString);
-            storage.Initialize();
+            services.AddScoped<IDbConnection>(_ => new SqlConnection(connectionString));
 
-            return options;
+            services.AddSingleton<IStorageService, SqlServerStorageService>();
+
+            ServiceTool.Create(services);
+
+            var storage = ServiceTool.ServiceProvider.GetService<IStorageService>();
+            storage.Install();
         }
     }
 }

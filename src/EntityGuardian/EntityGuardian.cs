@@ -1,5 +1,6 @@
 ﻿using Castle.DynamicProxy;
 using EntityGuardian.Entities;
+using EntityGuardian.Interfaces;
 using EntityGuardian.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ namespace EntityGuardian
         private ChangeWrapper _changeWrapper;
         private readonly DbContext _dbContext;
         private readonly string _ipAddress;
+        private readonly ICacheManager _cacheManager;
 
         public EntityGuardian()
         {
@@ -27,6 +29,8 @@ namespace EntityGuardian
 
             if (httpContextAccessor.HttpContext.Items["DbContext"] is not DbContext dbContext)
                 return;
+
+            _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
 
             dbContext.SavedChanges += DbContext_SavedChanges;
             dbContext.SavingChanges += DbContext_SavingChanges;
@@ -71,6 +75,8 @@ namespace EntityGuardian
                     {
                         _changeWrapper.Changes.Add(new Change
                         {
+                            Guid = Guid.NewGuid(),
+                            ChangeWrapperGuid = _changeWrapper.Guid,
                             ActionType = "INSERT",
                             NewData = JsonSerializer.Serialize(entityEntry.Entity),
                             OldData = string.Empty,
@@ -94,6 +100,8 @@ namespace EntityGuardian
 
                             _changeWrapper.Changes.Add(new Change
                             {
+                                Guid = Guid.NewGuid(),
+                                ChangeWrapperGuid = _changeWrapper.Guid,
                                 ActionType = "UPDATE",
                                 NewData = JsonSerializer.Serialize(currentEntity),
                                 OldData = JsonSerializer.Serialize(dbEntity),
@@ -107,6 +115,8 @@ namespace EntityGuardian
                     {
                         _changeWrapper.Changes.Add(new Change
                         {
+                            Guid = Guid.NewGuid(),
+                            ChangeWrapperGuid = _changeWrapper.Guid,
                             ActionType = "DELETE",
                             NewData = JsonSerializer.Serialize(entityEntry.Entity),
                             OldData = string.Empty,
@@ -118,6 +128,14 @@ namespace EntityGuardian
                     }
                 }
             }
+
+            var key = $"{nameof(ChangeWrapper)}_{_dbContext.ContextId}";
+
+            if (_cacheManager.IsExists(key))
+                key = $"{key}_{new Random().Next(0, 99999)}";
+
+            _cacheManager.Add(key, _changeWrapper);
+
         }
 
         private static void DbContext_SavedChanges(object sender, SavedChangesEventArgs e)

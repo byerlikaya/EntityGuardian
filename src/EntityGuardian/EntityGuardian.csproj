@@ -5,21 +5,31 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Services\StorageServices\SqlServer\Install.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Services\StorageServices\SqlServer\Install.sql" />
+  </ItemGroup>
+
 <ItemGroup>
   <PackageReference Include="Autofac.Extras.DynamicProxy" Version="7.1.0" />
+  <PackageReference Include="Cronos" Version="0.7.1" />
   <PackageReference Include="Dapper" Version="2.1.15" />
   <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.34" />
   <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.17" />
   <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
+  <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
   <PackageReference Include="System.Text.Json" Version="7.0.3" />
 </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Dashboard\" />
-    <Folder Include="Storages\MongoDb\" />
-    <Folder Include="Storages\MySQL\" />
-    <Folder Include="Storages\PostgreSQL\" />
-    <Folder Include="Storages\Redis\" />
+    <Folder Include="Services\StorageServices\MongoDb\" />
+    <Folder Include="Services\StorageServices\MySQL\" />
+    <Folder Include="Services\StorageServices\PostgreSQL\" />
+    <Folder Include="Services\StorageServices\Redis\" />
   </ItemGroup>
 
 </Project>

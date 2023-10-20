@@ -1,30 +1,32 @@
 ﻿using Dapper;
-using Microsoft.Data.SqlClient;
+using EntityGuardian.Interfaces;
+using EntityGuardian.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Data.Common;
+using System.Data;
 using System.IO;
 using System.Reflection;
 
-namespace EntityGuardian.Storages.SqlServer
+namespace EntityGuardian.Services.StorageServices.SqlServer
 {
-    public class SqlServerInstaller : IStorage
+    public class SqlServerStorageService : IStorageService
     {
-        private readonly DbConnection _dbConnection;
-
-        public SqlServerInstaller(string connectionString)
-        {
-            _dbConnection = new SqlConnection(connectionString);
-        }
+        private ICacheManager _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
+        private readonly IDbConnection _dbConnection = ServiceTool.ServiceProvider.GetService<IDbConnection>();
 
         public void Install()
         {
             var script = GetSqlScript() ?? throw new ArgumentNullException("GetSqlScript()");
-
             _dbConnection.Execute(script);
         }
 
+        public void Create()
+        {
+            throw new NotImplementedException();
+        }
+
         private static string GetSqlScript()
-            => GetStringResource(typeof(SqlServerInstaller).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");
+            => GetStringResource(typeof(SqlServerStorageService).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");
 
         private static string GetStringResource(Assembly assembly, string resourceName)
         {
