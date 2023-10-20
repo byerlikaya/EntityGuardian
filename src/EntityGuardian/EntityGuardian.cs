@@ -1,5 +1,6 @@
 ﻿using Castle.DynamicProxy;
 using EntityGuardian.Entities;
+using EntityGuardian.Interfaces;
 using EntityGuardian.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ namespace EntityGuardian
         private ChangeWrapper _changeWrapper;
         private readonly DbContext _dbContext;
         private readonly string _ipAddress;
+        private readonly ICacheManager _cacheManager;
 
         public EntityGuardian()
         {
@@ -27,6 +29,8 @@ namespace EntityGuardian
 
             if (httpContextAccessor.HttpContext.Items["DbContext"] is not DbContext dbContext)
                 return;
+
+            _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
 
             dbContext.SavedChanges += DbContext_SavedChanges;
             dbContext.SavingChanges += DbContext_SavingChanges;
@@ -118,6 +122,14 @@ namespace EntityGuardian
                     }
                 }
             }
+
+            var key = $"ChangeWrapper_{_dbContext.ContextId}";
+
+            if (_cacheManager.IsExists(key))
+                key = $"ChangeWrapper_{new Random().Next(0, 10000)}_{_dbContext.ContextId}";
+
+            _cacheManager.Add(key, _changeWrapper);
+
         }
 
         private static void DbContext_SavedChanges(object sender, SavedChangesEventArgs e)

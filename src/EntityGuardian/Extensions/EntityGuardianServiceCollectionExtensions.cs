@@ -1,6 +1,7 @@
 ﻿using EntityGuardian.BackgroundServices;
 using EntityGuardian.Interfaces;
 using EntityGuardian.Options;
+using EntityGuardian.Storages;
 using EntityGuardian.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +28,10 @@ namespace EntityGuardian.Extensions
 
                 return configurationInstance;
             });
+
+            services.AddMemoryCache();
+
+            services.TryAddSingleton<ICacheManager, CacheManager>();
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

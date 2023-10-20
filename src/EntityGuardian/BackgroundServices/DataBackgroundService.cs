@@ -8,7 +8,7 @@ namespace EntityGuardian.BackgroundServices
 {
     public class DataBackgroundService : BackgroundService
     {
-        private const string CronExpression = "0/5 * * * * ?"; // 5 seconds
+        private const string CronExpression = "0/30 * * * * ?"; // 30 seconds
         private DateTime _nextRunTime = DateTime.UtcNow;
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
