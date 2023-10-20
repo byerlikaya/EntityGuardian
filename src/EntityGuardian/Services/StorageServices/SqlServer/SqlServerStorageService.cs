@@ -1,32 +1,97 @@
 ﻿using Dapper;
+using EntityGuardian.Entities;
 using EntityGuardian.Interfaces;
 using EntityGuardian.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace EntityGuardian.Services.StorageServices.SqlServer
 {
     public class SqlServerStorageService : IStorageService
     {
-        private ICacheManager _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
+        private readonly ICacheManager _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
         private readonly IDbConnection _dbConnection = ServiceTool.ServiceProvider.GetService<IDbConnection>();
 
         public void Install()
-        {
-            var script = GetSqlScript() ?? throw new ArgumentNullException("GetSqlScript()");
-            _dbConnection.Execute(script);
-        }
+            => _dbConnection.Execute(GetSqlScript());
 
-        public void Create()
+        public async Task CreateAsync()
         {
-            throw new NotImplementedException();
+            var memoryData = _cacheManager.GetList<ChangeWrapper>(nameof(ChangeWrapper));
+
+            if (memoryData.Any())
+            {
+                if (_dbConnection.State == ConnectionState.Closed)
+                    _dbConnection.Open();
+
+                using (var transaction = _dbConnection.BeginTransaction())
+                {
+                    try
+                    {
+                        var changeWrappers = memoryData
+                            .Select(x => x.data)
+                            .ToList();
+
+                        await _dbConnection.ExecuteAsync("""
+                                                         INSERT INTO [dbo].[ChangeWrapper]
+                                                                    ([Guid]
+                                                                    ,[UserName]
+                                                                    ,[IpAddress]
+                                                                    ,[TargetName]
+                                                                    ,[MethodName])
+                                                              VALUES
+                                                                    (@Guid,
+                                                         			@UserName,
+                                                         			@IpAddress,
+                                                         		    @TargetName,
+                                                         		    @MethodName)
+                                                         """, changeWrappers, transaction);
+
+                        var changes = changeWrappers
+                            .SelectMany(x => x.Changes)
+                            .ToList();
+
+                        if (changes.Any())
+                        {
+                            await _dbConnection.ExecuteAsync("""
+                                                             INSERT INTO [dbo].[Change]
+                                                                        ([Guid]
+                                                                        ,[ChangeWrapperGuid]
+                                                                        ,[ActionType]
+                                                                        ,[EntityName]
+                                                                        ,[OldData]
+                                                                        ,[NewData]
+                                                                        ,[ModifiedDate])
+                                                                  VALUES
+                                                                        (@Guid,
+                                                             		    @ChangeWrapperGuid,
+                                                             			@ActionType,
+                                                             			@EntityName,
+                                                             			@OldData,
+                                                             			@NewData,
+                                                             			@ModifiedDate)
+                                                             """, changes, transaction);
+                        }
+
+                        transaction.Commit();
+
+                        memoryData.ForEach(x => _cacheManager.Remove(x.key));
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                    }
+                }
+            }
         }
 
         private static string GetSqlScript()
-            => GetStringResource(typeof(SqlServerStorageService).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");
+            => GetStringResource(typeof(SqlServerStorageService).GetTypeInfo().Assembly, "EntityGuardian.Services.StorageServices.SqlServer.Install.sql");
 
         private static string GetStringResource(Assembly assembly, string resourceName)
         {
