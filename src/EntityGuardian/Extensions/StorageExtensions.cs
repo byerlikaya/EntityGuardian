@@ -1,6 +1,6 @@
 ﻿using EntityGuardian.Interfaces;
 using EntityGuardian.Options;
-using EntityGuardian.Services.StorageServices.SqlServer;
+using EntityGuardian.Storages.SqlServer;
 using EntityGuardian.Utilities;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +12,7 @@ namespace EntityGuardian.Extensions
     public static class StorageExtensions
     {
         public static void UseSqlServerStorage(
-            this EntityGuardianConfiguration options,
+            this EntityGuardianOption options,
             IServiceCollection services,
             string connectionString)
         {
@@ -21,7 +21,7 @@ namespace EntityGuardian.Extensions
 
             services.AddScoped<IDbConnection>(_ => new SqlConnection(connectionString));
 
-            services.AddSingleton<IStorageService, SqlServerStorageService>();
+            services.AddSingleton<IStorageService, SqlServerStorage>();
 
             ServiceTool.Create(services);
 

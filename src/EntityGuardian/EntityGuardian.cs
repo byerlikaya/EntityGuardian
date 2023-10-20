@@ -118,8 +118,8 @@ namespace EntityGuardian
                             Guid = Guid.NewGuid(),
                             ChangeWrapperGuid = _changeWrapper.Guid,
                             ActionType = "DELETE",
-                            NewData = JsonSerializer.Serialize(entityEntry.Entity),
-                            OldData = string.Empty,
+                            NewData = string.Empty,
+                            OldData = JsonSerializer.Serialize(entityEntry.Entity),
                             ModifiedDate = DateTime.Now,
                             EntityName = entityEntry.Entity.ToString()
                         });

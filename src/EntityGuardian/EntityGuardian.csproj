@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Services\StorageServices\SqlServer\Install.sql" />
+    <None Remove="Storages\SqlServer\Install.sql" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Services\StorageServices\SqlServer\Install.sql" />
+    <EmbeddedResource Include="Storages\SqlServer\Install.sql" />
   </ItemGroup>
 
 <ItemGroup>
@@ -26,10 +26,6 @@
 
   <ItemGroup>
     <Folder Include="Dashboard\" />
-    <Folder Include="Services\StorageServices\MongoDb\" />
-    <Folder Include="Services\StorageServices\MySQL\" />
-    <Folder Include="Services\StorageServices\PostgreSQL\" />
-    <Folder Include="Services\StorageServices\Redis\" />
   </ItemGroup>
 
 </Project>

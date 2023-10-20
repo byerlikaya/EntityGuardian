@@ -7,10 +7,10 @@ BEGIN
     (
         [Guid] [uniqueidentifier] NOT NULL,
         [ChangeWrapperGuid] [uniqueidentifier] NOT NULL,
-        [ActionType] [nvarchar](50) NULL,
-        [EntityName] [nvarchar](50) NULL,
-        [OldData] [nvarchar](50) NULL,
-        [NewData] [nvarchar](50) NULL,
+        [ActionType] [nvarchar](500) NULL,
+        [EntityName] [nvarchar](500) NULL,
+        [OldData] [text] NULL,
+        [NewData] [text] NULL,
         [ModifiedDate] [datetime] NULL,
         CONSTRAINT [PK_Change]
             PRIMARY KEY CLUSTERED ([Guid] ASC)
@@ -35,8 +35,8 @@ BEGIN
         [Guid] [uniqueidentifier] NOT NULL,
         [UserName] [nvarchar](50) NULL,
         [IpAddress] [nvarchar](50) NULL,
-        [TargetName] [nvarchar](50) NULL,
-        [MethodName] [nvarchar](50) NULL,
+        [TargetName] [nvarchar](500) NULL,
+        [MethodName] [nvarchar](500) NULL,
         CONSTRAINT [PK_ChangeWrapper]
             PRIMARY KEY CLUSTERED ([Guid] ASC)
             WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON,

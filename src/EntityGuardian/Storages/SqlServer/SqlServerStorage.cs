@@ -10,9 +10,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace EntityGuardian.Services.StorageServices.SqlServer
+namespace EntityGuardian.Storages.SqlServer
 {
-    public class SqlServerStorageService : IStorageService
+    internal class SqlServerStorage : IStorageService
     {
         private readonly ICacheManager _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
         private readonly IDbConnection _dbConnection = ServiceTool.ServiceProvider.GetService<IDbConnection>();
@@ -91,7 +91,7 @@ namespace EntityGuardian.Services.StorageServices.SqlServer
         }
 
         private static string GetSqlScript()
-            => GetStringResource(typeof(SqlServerStorageService).GetTypeInfo().Assembly, "EntityGuardian.Services.StorageServices.SqlServer.Install.sql");
+            => GetStringResource(typeof(SqlServerStorage).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");
 
         private static string GetStringResource(Assembly assembly, string resourceName)
         {

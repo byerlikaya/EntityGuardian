@@ -1,6 +1,6 @@
 ﻿namespace EntityGuardian.Options
 {
-    public class EntityGuardianConfiguration
+    public class EntityGuardianOption
     {
         public string DashboardUrl { get; set; }
 
