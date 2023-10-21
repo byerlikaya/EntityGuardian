@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using EntityGuardian.Dashboard;
 using EntityGuardian.DependencyResolvers;
 using EntityGuardian.Extensions;
 using Microsoft.OpenApi.Models;
@@ -39,7 +40,6 @@ namespace Sample.Api
                 configuration.UseSqlServerStorage(services, Configuration.GetConnectionString("SqlServerConnection"));
             });
 
-
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -53,6 +53,8 @@ namespace Sample.Api
             }
 
             app.UseEntityGuardian<MemoryDbContext>();
+
+            app.UseEntityGuardianDashboard();
 
             app.UseHttpsRedirection();
 
