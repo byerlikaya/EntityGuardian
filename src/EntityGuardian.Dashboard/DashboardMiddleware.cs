@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Reflection;
@@ -10,11 +12,16 @@ namespace EntityGuardian.Dashboard
 {
     public class DashboardMiddleware
     {
-        private RequestDelegate _next;
+        private const string EmbeddedFileNamespace = "EntityGuardian.Dashboard.wwwroot";
+        private readonly StaticFileMiddleware _staticFileMiddleware;
 
-        public DashboardMiddleware(RequestDelegate next)
+        public DashboardMiddleware(
+            RequestDelegate next,
+            IHostEnvironment hostingEnv,
+            ILoggerFactory loggerFactory)
         {
-            _next = next;
+
+            _staticFileMiddleware = CreateStaticFileMiddleware(next, hostingEnv, loggerFactory);
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -37,9 +44,10 @@ namespace EntityGuardian.Dashboard
             if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape("")}/?index.html$", RegexOptions.IgnoreCase))
             {
                 await RespondWithIndexHtml(httpContext.Response);
+                return;
             }
 
-            //await _staticFileMiddleware.Invoke(httpContext);
+            await _staticFileMiddleware.Invoke(httpContext);
         }
 
         private async Task RespondWithIndexHtml(HttpResponse response)
@@ -49,20 +57,35 @@ namespace EntityGuardian.Dashboard
 
             using (var stream = IndexStream())
             {
-                using var reader = new StreamReader(stream);
+                using (var reader = new StreamReader(stream))
+                {
+                    // Inject arguments before writing to response
+                    var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
+                    //foreach (var entry in GetIndexArguments())
+                    //{
+                    //    htmlBuilder.Replace(entry.Key, entry.Value);
+                    //}
 
-                // Inject arguments before writing to response
-                var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
-                //foreach (var entry in GetIndexArguments())
-                //{
-                //    htmlBuilder.Replace(entry.Key, entry.Value);
-                //}
-
-                await response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+                    await response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+                }
             }
         }
 
         public Func<Stream> IndexStream { get; set; } = () => typeof(DashboardMiddleware).GetTypeInfo().Assembly
             .GetManifestResourceStream("EntityGuardian.Dashboard.index.html");
+
+        private StaticFileMiddleware CreateStaticFileMiddleware(
+            RequestDelegate next,
+            IHostEnvironment hostingEnv,
+            ILoggerFactory loggerFactory)
+        {
+            var staticFileOptions = new StaticFileOptions
+            {
+                RequestPath = "/",
+                FileProvider = new EmbeddedFileProvider(typeof(DashboardMiddleware).GetTypeInfo().Assembly, EmbeddedFileNamespace),
+            };
+
+            return new StaticFileMiddleware(next, hostingEnv, Options.Create(staticFileOptions), loggerFactory);
+        }
     }
 }
