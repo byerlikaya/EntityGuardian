@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿
+
+using Microsoft.AspNetCore.Builder;
+
+#if NETSTANDARD2_0
+using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+#endif
 
 namespace EntityGuardian.Dashboard
 {

@@ -5,9 +5,16 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+#if NETSTANDARD2_0
+using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+#endif
 
 namespace EntityGuardian.Dashboard
 {
@@ -22,7 +29,7 @@ namespace EntityGuardian.Dashboard
             ILoggerFactory loggerFactory)
         {
 
-            _staticFileMiddleware = CreateStaticFileMiddleware(next, hostingEnv, loggerFactory);
+            _staticFileMiddleware = DashboardMiddleware.CreateStaticFileMiddleware(next, hostingEnv, loggerFactory);
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -75,7 +82,7 @@ namespace EntityGuardian.Dashboard
         public Func<Stream> IndexStream { get; set; } = () => typeof(DashboardMiddleware).GetTypeInfo().Assembly
             .GetManifestResourceStream("EntityGuardian.Dashboard.index.html");
 
-        private StaticFileMiddleware CreateStaticFileMiddleware(
+        private static StaticFileMiddleware CreateStaticFileMiddleware(
             RequestDelegate next,
             IWebHostEnvironment hostingEnv,
             ILoggerFactory loggerFactory)
