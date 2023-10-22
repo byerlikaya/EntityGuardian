@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
-using System;
-using System.IO;
+using Microsoft.Extensions.Options;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace EntityGuardian.Dashboard
 {
@@ -17,7 +18,7 @@ namespace EntityGuardian.Dashboard
 
         public DashboardMiddleware(
             RequestDelegate next,
-            IHostEnvironment hostingEnv,
+            IWebHostEnvironment hostingEnv,
             ILoggerFactory loggerFactory)
         {
 
@@ -76,12 +77,12 @@ namespace EntityGuardian.Dashboard
 
         private StaticFileMiddleware CreateStaticFileMiddleware(
             RequestDelegate next,
-            IHostEnvironment hostingEnv,
+            IWebHostEnvironment hostingEnv,
             ILoggerFactory loggerFactory)
         {
             var staticFileOptions = new StaticFileOptions
             {
-                RequestPath = "/",
+                RequestPath = "",
                 FileProvider = new EmbeddedFileProvider(typeof(DashboardMiddleware).GetTypeInfo().Assembly, EmbeddedFileNamespace),
             };
 

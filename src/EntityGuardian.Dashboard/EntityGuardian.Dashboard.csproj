@@ -1,21 +1,27 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <Nullable>enable</Nullable>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Index.html" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="index.html" />
+    <EmbeddedResource Include="wwwroot/css/**/*" />
+    <EmbeddedResource Include="wwwroot/js/**/*" />
+    <EmbeddedResource Include="wwwroot/lib/bootstrap/dist/css/**/*" Exclude="**/*/*.map;**/*/*.json;**/*/*.md" />
+    <EmbeddedResource Include="wwwroot/lib/bootstrap/dist/js/**/*" Exclude="**/*/*.map;**/*/*.json;**/*/*.md" />
+    <EmbeddedResource Include="wwwroot/lib/jquery/dist/**/*" Exclude="**/*/*.map;**/*/*.json;**/*/*.md" />
+    <EmbeddedResource Include="wwwroot/lib/jquery-validation/dist/**/*" Exclude="**/*/*.map;**/*/*.json;**/*/*.md" />
+    <EmbeddedResource Include="wwwroot/lib/jquery-validation-unobtrusive/**/*" Exclude="**/*/*.map;**/*/*.json;**/*/*.md" />
   </ItemGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="7.0.12" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
   </ItemGroup>
