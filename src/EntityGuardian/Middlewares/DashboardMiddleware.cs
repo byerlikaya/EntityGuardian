@@ -1,16 +1,20 @@
 ﻿using EntityGuardian.Interfaces;
+using EntityGuardian.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 #if NETSTANDARD2_1
 using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 #endif
@@ -19,16 +23,16 @@ namespace EntityGuardian.Middlewares
 {
     public class DashboardMiddleware
     {
-        private const string EmbeddedFileNamespace = "EntityGuardian.Dashboard.wwwroot";
+        private const string EmbeddedFileNamespace = "EntityGuardian.Dashboard";
         private readonly StaticFileMiddleware _staticFileMiddleware;
+        private readonly IStorageService _storageService;
 
         public DashboardMiddleware(
             RequestDelegate next,
             IWebHostEnvironment hostingEnv,
-            ILoggerFactory loggerFactory,
-            IStorageService storageService)
+            ILoggerFactory loggerFactory)
         {
-
+            _storageService = ServiceTool.ServiceProvider.GetService<IStorageService>();
             _staticFileMiddleware = DashboardMiddleware.CreateStaticFileMiddleware(next, hostingEnv, loggerFactory);
         }
 
@@ -67,14 +71,31 @@ namespace EntityGuardian.Middlewares
             {
                 using (var reader = new StreamReader(stream))
                 {
-
                     var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
+
+                    var changeWrappers = await _storageService.GetChangeWrappersAsync();
+
+                    var entityNames = changeWrappers
+                        .OrderByDescending(x => x.Changes.FirstOrDefault()!.ModifiedDate)
+                        .SelectMany(x => x.Changes)
+                        .Select(x => x.EntityName)
+                        .Distinct();
 
                     StringBuilder stringBuilder = new();
 
-                    for (int i = 0; i < 100; i++)
+                    foreach (var entity in entityNames)
                     {
-                        stringBuilder.Append("<tr>\r\n    <td>Tiger Nixon</td>\r\n    <td>System Architect</td>\r\n    <td>Edinburgh</td>\r\n    <td>61</td>\r\n    <td>2011-04-25</td>\r\n    <td>$320,800</td>\r\n</tr>");
+                        var change = changeWrappers
+                            .OrderByDescending(x => x.Changes.FirstOrDefault()!.ModifiedDate)
+                            .SelectMany(x => x.Changes)
+                            .FirstOrDefault(x => string.Equals(x.EntityName, entity));
+
+                        stringBuilder.AppendLine("<tr>");
+                        stringBuilder.AppendLine($"<td>{entity}</td>");
+                        stringBuilder.AppendLine($"<td>{change!.ActionType}</td>");
+                        stringBuilder.AppendLine($"<td>{change!.ModifiedDate}</td>");
+                        stringBuilder.AppendLine("<td></td>");
+                        stringBuilder.AppendLine("</tr>");
                     }
 
                     htmlBuilder.Replace("#entity-guardian-data", stringBuilder.ToString());
@@ -86,7 +107,7 @@ namespace EntityGuardian.Middlewares
         }
 
         public Func<Stream> IndexStream { get; set; } = () => typeof(DashboardMiddleware).GetTypeInfo().Assembly
-            .GetManifestResourceStream("EntityGuardian.Dashboard.wwwroot.index.html");
+            .GetManifestResourceStream("EntityGuardian.Dashboard.index.html");
 
         private static StaticFileMiddleware CreateStaticFileMiddleware(
             RequestDelegate next,

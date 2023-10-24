@@ -21,7 +21,9 @@ namespace EntityGuardian.BackgroundServices
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(GetDelayTime(), cancellationToken);
+
                 await _storageService.Synchronization();
+
                 _nextRunTime = GetNextDate();
             }
         }

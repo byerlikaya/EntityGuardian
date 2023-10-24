@@ -6,7 +6,7 @@ namespace EntityGuardian.Interfaces
 {
     public interface IStorageService
     {
-        Task CreateDatabaseTablesAsync();
+        void CreateDatabaseTables();
 
         Task Synchronization();
 

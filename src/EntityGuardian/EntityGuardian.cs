@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace EntityGuardian
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Assembly, AllowMultiple = true, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Assembly)]
     public class EntityGuardian : Attribute, IInterceptor
     {
         private ChangeWrapper _changeWrapper;
@@ -25,9 +25,9 @@ namespace EntityGuardian
         {
             var httpContextAccessor = ServiceTool.ServiceProvider.GetService<IHttpContextAccessor>();
 
-            _ipAddress = httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            _ipAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
 
-            if (httpContextAccessor.HttpContext.Items["DbContext"] is not DbContext dbContext)
+            if (httpContextAccessor.HttpContext?.Items["DbContext"] is not DbContext dbContext)
                 return;
 
             _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();

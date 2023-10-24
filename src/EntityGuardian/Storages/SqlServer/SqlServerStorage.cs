@@ -19,7 +19,7 @@ namespace EntityGuardian.Storages.SqlServer
 
         private readonly EntityGuardianDbContext _context = ServiceTool.ServiceProvider.GetService<EntityGuardianDbContext>();
 
-        public async Task CreateDatabaseTablesAsync() => await _context.Database.ExecuteSqlRawAsync(GetSqlScript());
+        public void CreateDatabaseTables() => _context.Database.ExecuteSqlRaw(GetSqlScript());
 
         public async Task Synchronization()
         {
