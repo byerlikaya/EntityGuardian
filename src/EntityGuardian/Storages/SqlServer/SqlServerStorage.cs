@@ -19,9 +19,9 @@ namespace EntityGuardian.Storages.SqlServer
 
         private readonly EntityGuardianDbContext _context = ServiceTool.ServiceProvider.GetService<EntityGuardianDbContext>();
 
-        public async Task InstallAsync() => await _context.Database.ExecuteSqlRawAsync(GetSqlScript());
+        public async Task CreateDatabaseTablesAsync() => await _context.Database.ExecuteSqlRawAsync(GetSqlScript());
 
-        public async Task CreateAsync()
+        public async Task Synchronization()
         {
             var memoryData = _cacheManager.GetList<ChangeWrapper>(nameof(ChangeWrapper));
 
@@ -36,15 +36,6 @@ namespace EntityGuardian.Storages.SqlServer
 
                     await _context.ChangeWrapper.AddRangeAsync(changeWrappers);
 
-                    var changes = changeWrappers
-                        .SelectMany(x => x.Changes)
-                        .ToList();
-
-                    if (changes.Any())
-                    {
-                        await _context.Change.AddRangeAsync(changes);
-                    }
-
                     await _context.SaveChangesAsync();
 
                     transaction.Complete();
@@ -58,10 +49,10 @@ namespace EntityGuardian.Storages.SqlServer
             }
         }
 
-        public Task<List<T>> GetAsync<T>()
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<List<ChangeWrapper>> GetChangeWrappersAsync() =>
+            await _context.ChangeWrapper
+                .Include(x => x.Changes)
+                .ToListAsync();
 
         private static string GetSqlScript()
             => GetStringResource(typeof(SqlServerStorage).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");

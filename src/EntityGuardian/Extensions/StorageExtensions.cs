@@ -23,7 +23,7 @@ namespace EntityGuardian.Extensions
             ServiceTool.Create(services);
 
             var storage = ServiceTool.ServiceProvider.GetService<IStorageService>();
-            storage.InstallAsync();
+            storage.CreateDatabaseTablesAsync();
         }
     }
 }
