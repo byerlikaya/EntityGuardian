@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace EntityGuardian.Entities
 {
     public class ChangeWrapper
     {
+        [Key]
         public Guid Guid { get; set; }
 
         public string Username { get; set; }

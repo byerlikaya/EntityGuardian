@@ -1,11 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EntityGuardian.Interfaces
 {
     public interface IStorageService
     {
-        void Install();
+        Task InstallAsync();
 
         Task CreateAsync();
+
+        Task<List<T>> GetAsync<T>();
     }
 }

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace EntityGuardian.Entities
 {
     public class Change
     {
+        [Key]
         public Guid Guid { get; set; }
 
         public Guid ChangeWrapperGuid { get; set; }

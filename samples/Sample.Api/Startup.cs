@@ -35,9 +35,8 @@ namespace Sample.Api
 
             services.AddEntityGuardian(configuration =>
             {
-                configuration.DashboardUrl = "deneme";
-                configuration.CronExpression = "0/5 * * * * ?"; // 5 seconds
-                configuration.UseSqlServerStorage(services, Configuration.GetConnectionString("SqlServerConnection"));
+                configuration.DataSynchronizationTimeout = 5;
+                configuration.UseSqlServerStorage(services);
             });
 
         }

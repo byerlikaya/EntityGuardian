@@ -2,8 +2,9 @@
 {
     public class EntityGuardianOption
     {
-        public string DashboardUrl { get; set; }
-
-        public string CronExpression { get; set; }
+        /// <summary>
+        /// will be defined in seconds.
+        /// </summary>
+        public int DataSynchronizationTimeout { get; set; }
     }
 }

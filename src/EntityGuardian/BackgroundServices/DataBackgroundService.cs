@@ -1,5 +1,4 @@
-﻿using Cronos;
-using EntityGuardian.Interfaces;
+﻿using EntityGuardian.Interfaces;
 using EntityGuardian.Options;
 using EntityGuardian.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,12 +40,6 @@ namespace EntityGuardian.BackgroundServices
             return (int)delayTime;
         }
 
-        private DateTime GetNextDate()
-        {
-            var cron = CronExpression.Parse(_configuration.CronExpression, CronFormat.IncludeSeconds);
-            var next = cron.GetNextOccurrence(DateTime.UtcNow);
-            return next ?? DateTime.UtcNow;
-        }
-
+        private DateTime GetNextDate() => DateTime.UtcNow.AddSeconds(_configuration.DataSynchronizationTimeout);
     }
 }
