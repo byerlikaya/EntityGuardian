@@ -1,31 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>netstandard2.1;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Storages\SqlServer\Install.sql" />
-  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Storages\SqlServer\Install.sql" />
   </ItemGroup>
 
-<ItemGroup>
-  <PackageReference Include="Autofac.Extras.DynamicProxy" Version="7.1.0" />
-  <PackageReference Include="Cronos" Version="0.7.1" />
-  <PackageReference Include="Dapper" Version="2.1.15" />
-  <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.34" />
-  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.17" />
-  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
-  <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
-  <PackageReference Include="System.Text.Json" Version="7.0.3" />
-</ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' OR '$(TargetFramework)' == 'netcoreapp3.1' OR '$(TargetFramework)' == 'net5.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.17" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
+  </ItemGroup>
 
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.12" />
+  </ItemGroup>
+  
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.1' ">
+    <FrameworkReference Include="Microsoft.NetCore.App" />
+  </ItemGroup>
+  
   <ItemGroup>
-    <Folder Include="Dashboard\" />
+    <PackageReference Include="Autofac.Extras.DynamicProxy" Version="7.1.0" />
+    <PackageReference Include="Cronos" Version="0.7.1" />
+    <PackageReference Include="Dapper" Version="2.1.15" />
+    <PackageReference Include="EntityFramework" Version="6.4.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.34" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+    <PackageReference Include="System.Text.Json" Version="7.0.3" />
   </ItemGroup>
 
 </Project>

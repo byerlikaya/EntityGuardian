@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
@@ -15,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityGuardian.Dashboard\EntityGuardian.Dashboard.csproj" />
     <ProjectReference Include="..\..\src\EntityGuardian\EntityGuardian.csproj" />
     <ProjectReference Include="..\Sample.DomainObjects\Sample.DomainObjects.csproj" />
   </ItemGroup>
