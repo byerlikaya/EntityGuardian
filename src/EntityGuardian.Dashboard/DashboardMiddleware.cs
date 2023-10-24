@@ -80,7 +80,7 @@ namespace EntityGuardian.Dashboard
         }
 
         public Func<Stream> IndexStream { get; set; } = () => typeof(DashboardMiddleware).GetTypeInfo().Assembly
-            .GetManifestResourceStream("EntityGuardian.Dashboard.index.html");
+            .GetManifestResourceStream("EntityGuardian.Dashboard.wwwroot.index.html");
 
         private static StaticFileMiddleware CreateStaticFileMiddleware(
             RequestDelegate next,

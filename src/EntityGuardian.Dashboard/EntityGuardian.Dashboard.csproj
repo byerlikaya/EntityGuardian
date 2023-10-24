@@ -6,18 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="index.html" />
+    <EmbeddedResource Include="wwwroot\index.html" />
     <EmbeddedResource Include="wwwroot/css/**/*" />
     <EmbeddedResource Include="wwwroot/js/**/*" />
-    <EmbeddedResource Include="wwwroot/lib/bootstrap/dist/css/**/*" Exclude="**/*/*.map;**/*/*.json;**/*/*.md" />
-    <EmbeddedResource Include="wwwroot/lib/bootstrap/dist/js/**/*" Exclude="**/*/*.map;**/*/*.json;**/*/*.md" />
-    <EmbeddedResource Include="wwwroot/lib/jquery/dist/**/*" Exclude="**/*/*.map;**/*/*.json;**/*/*.md" />
-    <EmbeddedResource Include="wwwroot/lib/jquery-validation/dist/**/*" Exclude="**/*/*.map;**/*/*.json;**/*/*.md" />
-    <EmbeddedResource Include="wwwroot/lib/jquery-validation-unobtrusive/**/*" Exclude="**/*/*.map;**/*/*.json;**/*/*.md" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.1' ">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="wwwroot\js\datatable.js" />
   </ItemGroup>
 
   <ItemGroup>
