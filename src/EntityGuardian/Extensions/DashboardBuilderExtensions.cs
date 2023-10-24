@@ -1,5 +1,6 @@
 ﻿
 
+using EntityGuardian.Middlewares;
 using Microsoft.AspNetCore.Builder;
 
 #if NETSTANDARD2_1

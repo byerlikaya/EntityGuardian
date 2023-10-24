@@ -24,4 +24,8 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="7.0.12" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EntityGuardian\EntityGuardian.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Api", "..\..\samples
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.DomainObjects", "..\..\samples\Sample.DomainObjects\Sample.DomainObjects.csproj", "{9A8C8921-CBD3-46CB-8008-5C4EFF9328DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityGuardian.Dashboard", "..\EntityGuardian.Dashboard\EntityGuardian.Dashboard.csproj", "{0D5978E7-7A85-43E2-9CA7-A56EB7788CAF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,10 +31,6 @@ Global
 		{9A8C8921-CBD3-46CB-8008-5C4EFF9328DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A8C8921-CBD3-46CB-8008-5C4EFF9328DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A8C8921-CBD3-46CB-8008-5C4EFF9328DC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0D5978E7-7A85-43E2-9CA7-A56EB7788CAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0D5978E7-7A85-43E2-9CA7-A56EB7788CAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0D5978E7-7A85-43E2-9CA7-A56EB7788CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0D5978E7-7A85-43E2-9CA7-A56EB7788CAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
