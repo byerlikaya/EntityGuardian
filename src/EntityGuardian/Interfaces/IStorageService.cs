@@ -1,5 +1,6 @@
 ﻿using EntityGuardian.Entities;
 using EntityGuardian.Entities.Results;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,5 +13,7 @@ namespace EntityGuardian.Interfaces
         Task Synchronization();
 
         Task<IDataResult<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(SearcRequest searchDto);
+
+        Task<IDataResult<IEnumerable<Change>>> ChangesAsync(Guid guid);
     }
 }

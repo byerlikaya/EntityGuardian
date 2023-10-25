@@ -30,6 +30,7 @@
   
   <ItemGroup>
     <None Remove="Dashboard\data.html" />
+    <None Remove="Dashboard\html\detail.html" />
   </ItemGroup>
   
   <ItemGroup>

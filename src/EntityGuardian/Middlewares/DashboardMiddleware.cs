@@ -67,45 +67,84 @@ namespace EntityGuardian.Middlewares
                 return;
             }
 
+            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape("")}/?detail.html$", RegexOptions.IgnoreCase))
+            {
+                await RespondWithDetailHtml(httpContext);
+                return;
+            }
+
             await _staticFileMiddleware.Invoke(httpContext);
+        }
+
+        private async Task RespondWithDetailHtml(HttpContext httoContext)
+        {
+            httoContext.Response.StatusCode = 200;
+            httoContext.Response.ContentType = "text/html;charset=utf-8";
+            var guid = httoContext.Request.Query["guid"].ToString();
+            await using var stream = DetailStream();
+            using var reader = new StreamReader(stream);
+            var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
+            htmlBuilder.Replace("#guid", guid);
+            await httoContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
         }
 
         private async Task RespondWithDataHtml(HttpContext httpContext)
         {
             httpContext.Response.StatusCode = 200;
             httpContext.Response.ContentType = "application/json; charset=utf-8";
+
+            var type = httpContext.Request.Query["type"].ToString();
+
             using (var stream = DataStream())
             {
                 using (var reader = new StreamReader(stream))
                 {
-                    var start = int.Parse(httpContext.Request.Query["start"]);
-                    var max = int.Parse(httpContext.Request.Query["length"]);
-                    var orderIndex = httpContext.Request.Query["order[0][column]"].ToString();
-                    var orderName = httpContext.Request.Query[$"columns[{orderIndex}][data]"].ToString();
-                    var orderType = httpContext.Request.Query["order[0][dir]"].ToString();
-                    var searchValue = httpContext.Request.Query["search[value]"].ToString();
-
-                    var changeWrappers = await _storageService.ChangeWrappersAsync(new SearcRequest
-                    {
-                        SearchValue = searchValue,
-                        Start = start,
-                        Max = max,
-                        OrderBy = new Sorting
-                        {
-                            Name = orderName,
-                            OrderType = orderType
-                        }
-                    });
-
-                    var json = JsonSerializer.Serialize(changeWrappers, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true,
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
-
                     var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
 
-                    htmlBuilder.Replace("#entity-guardian-data", json);
+                    if (string.Equals(type, "changewrappers", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var start = int.Parse(httpContext.Request.Query["start"]);
+                        var max = int.Parse(httpContext.Request.Query["length"]);
+                        var orderIndex = httpContext.Request.Query["order[0][column]"].ToString();
+                        var orderName = httpContext.Request.Query[$"columns[{orderIndex}][data]"].ToString();
+                        var orderType = httpContext.Request.Query["order[0][dir]"].ToString();
+                        var searchValue = httpContext.Request.Query["search[value]"].ToString();
+
+                        var changeWrappers = await _storageService.ChangeWrappersAsync(new SearcRequest
+                        {
+                            SearchValue = searchValue,
+                            Start = start,
+                            Max = max,
+                            OrderBy = new Sorting
+                            {
+                                Name = orderName,
+                                OrderType = orderType
+                            }
+                        });
+
+                        var json = JsonSerializer.Serialize(changeWrappers, new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true,
+                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                        });
+
+                        htmlBuilder.Replace("#entity-guardian-data", json);
+                    }
+                    else if (string.Equals(type, "changes", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var guid = Guid.Parse(httpContext.Request.Query["guid"]);
+
+                        var changes = await _storageService.ChangesAsync(guid);
+
+                        var json = JsonSerializer.Serialize(changes, new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true,
+                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                        });
+
+                        htmlBuilder.Replace("#entity-guardian-data", json);
+                    }
+
 
                     await httpContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
                 }
@@ -134,6 +173,12 @@ namespace EntityGuardian.Middlewares
                 .GetTypeInfo()
                 .Assembly
                 .GetManifestResourceStream("EntityGuardian.Dashboard.html.data.html");
+
+        private Func<Stream> DetailStream { get; } = ()
+            => typeof(DashboardMiddleware)
+                .GetTypeInfo()
+                .Assembly
+                .GetManifestResourceStream("EntityGuardian.Dashboard.html.detail.html");
 
         private static StaticFileMiddleware CreateStaticFileMiddleware(
             RequestDelegate next,

@@ -68,6 +68,14 @@ namespace EntityGuardian.Storages.SqlServer
             return new DataResult<List<ChangeWrapper>>(result, count);
         }
 
+        public async Task<IDataResult<IEnumerable<Change>>> ChangesAsync(Guid guid)
+        {
+            var query = _context.Change
+                .Where(x => x.ChangeWrapperGuid == guid);
+
+            return new DataResult<IEnumerable<Change>>(await query.ToListAsync(), await query.CountAsync());
+        }
+
         private static string GetSqlScript()
             => GetStringResource(typeof(SqlServerStorage).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");
 
