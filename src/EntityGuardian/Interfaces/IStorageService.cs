@@ -14,6 +14,8 @@ namespace EntityGuardian.Interfaces
 
         Task<IDataResult<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(SearcRequest searchDto);
 
-        Task<IDataResult<IEnumerable<Change>>> ChangesAsync(Guid guid);
+        Task<IDataResult<IEnumerable<Change>>> ChangesAsync(Guid changeWrapperGuid);
+
+        Task<Change> ChangeAsync(Guid guid);
     }
 }

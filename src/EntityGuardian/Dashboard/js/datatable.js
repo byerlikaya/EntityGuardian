@@ -62,7 +62,7 @@
                 searching: false,
                 sorting: false,
                 render: function (data, type, row) {
-                    return "<a href='/detail.html?guid=" + row.guid + "'class='btn btn-warning btn-icon-split btn-sm'><span class='icon'><i class='fas fa-arrow-right'></i></span><span class='text'>Details</span></a>";
+                    return "<a href='/change-wrapper-detail.html?guid=" + row.guid + "'class='btn btn-warning btn-icon-split btn-sm'><span class='icon'><i class='fas fa-arrow-right'></i></span><span class='text'>Details</span></a>";
                 }
             }
         ]
@@ -124,7 +124,7 @@
                 searching: false,
                 sorting: false,
                 render: function (data, type, row) {
-                    return "<a href='/detail.html?guid=" + row.guid + "'class='btn btn-warning btn-icon-split btn-sm'><span class='icon'><i class='fas fa-arrow-right'></i></span><span class='text'>Details</span></a>";
+                    return "<a href='/change-detail.html?guid=" + row.guid + "'class='btn btn-warning btn-icon-split btn-sm'><span class='icon'><i class='fas fa-arrow-right'></i></span><span class='text'>Details</span></a>";
                 }
             }
         ]

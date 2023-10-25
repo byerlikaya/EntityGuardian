@@ -67,25 +67,47 @@ namespace EntityGuardian.Middlewares
                 return;
             }
 
-            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape("")}/?detail.html$", RegexOptions.IgnoreCase))
+            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape("")}/?change-wrapper-detail.html$", RegexOptions.IgnoreCase))
             {
-                await RespondWithDetailHtml(httpContext);
+                await RespondWithChangeWrapperDetailHtml(httpContext);
+                return;
+            }
+
+            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape("")}/?change-detail.html$", RegexOptions.IgnoreCase))
+            {
+                await RespondWithChangeDetailHtml(httpContext);
                 return;
             }
 
             await _staticFileMiddleware.Invoke(httpContext);
         }
 
-        private async Task RespondWithDetailHtml(HttpContext httoContext)
+        private async Task RespondWithChangeWrapperDetailHtml(HttpContext httpContext)
         {
-            httoContext.Response.StatusCode = 200;
-            httoContext.Response.ContentType = "text/html;charset=utf-8";
-            var guid = httoContext.Request.Query["guid"].ToString();
-            await using var stream = DetailStream();
+            httpContext.Response.StatusCode = 200;
+            httpContext.Response.ContentType = "text/html;charset=utf-8";
+            var guid = httpContext.Request.Query["guid"].ToString();
+            await using var stream = ChangeWrapperDetailStream();
             using var reader = new StreamReader(stream);
             var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
             htmlBuilder.Replace("#guid", guid);
-            await httoContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+            await httpContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+        }
+
+        private async Task RespondWithChangeDetailHtml(HttpContext httpContext)
+        {
+            httpContext.Response.StatusCode = 200;
+            httpContext.Response.ContentType = "text/html;charset=utf-8";
+            var guid = httpContext.Request.Query["guid"].ToString();
+            await using var stream = ChangeDetailStream();
+            using var reader = new StreamReader(stream);
+            var change = await _storageService.ChangeAsync(Guid.Parse(guid));
+            var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
+
+            htmlBuilder.Replace("#old-data", change.OldData);
+            htmlBuilder.Replace("#new-data", change.NewData);
+
+            await httpContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
         }
 
         private async Task RespondWithDataHtml(HttpContext httpContext)
@@ -174,11 +196,17 @@ namespace EntityGuardian.Middlewares
                 .Assembly
                 .GetManifestResourceStream("EntityGuardian.Dashboard.html.data.html");
 
-        private Func<Stream> DetailStream { get; } = ()
+        private Func<Stream> ChangeWrapperDetailStream { get; } = ()
             => typeof(DashboardMiddleware)
                 .GetTypeInfo()
                 .Assembly
-                .GetManifestResourceStream("EntityGuardian.Dashboard.html.detail.html");
+                .GetManifestResourceStream("EntityGuardian.Dashboard.html.change-wrapper-detail.html");
+
+        private Func<Stream> ChangeDetailStream { get; } = ()
+            => typeof(DashboardMiddleware)
+                .GetTypeInfo()
+                .Assembly
+                .GetManifestResourceStream("EntityGuardian.Dashboard.html.change-detail.html");
 
         private static StaticFileMiddleware CreateStaticFileMiddleware(
             RequestDelegate next,
