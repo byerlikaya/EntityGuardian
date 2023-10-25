@@ -1,4 +1,5 @@
 ﻿using EntityGuardian.Entities;
+using EntityGuardian.Entities.Results;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,6 +11,6 @@ namespace EntityGuardian.Interfaces
 
         Task Synchronization();
 
-        Task<List<ChangeWrapper>> GetChangeWrappersAsync();
+        Task<IDataResult<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(SearcRequest searchDto);
     }
 }

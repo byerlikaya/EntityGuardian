@@ -18,6 +18,6 @@ namespace EntityGuardian.Entities
 
         public string NewData { get; set; }
 
-        public DateTime ModifiedDate { get; set; }
+        public DateTime TransactionDate { get; set; }
     }
 }

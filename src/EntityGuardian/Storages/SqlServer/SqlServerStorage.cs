@@ -1,8 +1,11 @@
 ﻿using EntityGuardian.Entities;
+using EntityGuardian.Entities.Results;
 using EntityGuardian.Interfaces;
 using EntityGuardian.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SmartOrderBy;
+using SmartWhere;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -49,28 +52,31 @@ namespace EntityGuardian.Storages.SqlServer
             }
         }
 
-        public async Task<List<ChangeWrapper>> GetChangeWrappersAsync() =>
-            await _context.ChangeWrapper
-                .Include(x => x.Changes)
+        public async Task<IDataResult<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(SearcRequest searchDto)
+        {
+            var query = _context.ChangeWrapper
+                .Where(searchDto)
+                .OrderBy(searchDto.OrderBy);
+
+            var count = await query.CountAsync();
+
+            var result = await query
+                .Skip(searchDto.Start)
+                .Take(searchDto.Max == default ? 10 : searchDto.Max)
                 .ToListAsync();
+
+            return new DataResult<List<ChangeWrapper>>(result, count);
+        }
 
         private static string GetSqlScript()
             => GetStringResource(typeof(SqlServerStorage).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");
 
         private static string GetStringResource(Assembly assembly, string resourceName)
         {
-            using (var stream = assembly.GetManifestResourceStream(resourceName))
-            {
-                if (stream == null)
-                {
-                    throw new InvalidOperationException($"Requested resource `{resourceName}` was not found in the assembly `{assembly}`.");
-                }
-
-                using (var reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
+            using var stream = assembly.GetManifestResourceStream(resourceName)
+                               ?? throw new InvalidOperationException($"Requested resource `{resourceName}` was not found in the assembly `{assembly}`.");
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
         }
     }
 }

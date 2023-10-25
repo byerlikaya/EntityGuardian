@@ -47,6 +47,8 @@ namespace EntityGuardian
                 TargetName = invocation.TargetType.FullName,
                 MethodName = invocation.Method.Name,
                 IpAddress = _ipAddress,
+                TransactionDate = DateTime.UtcNow,
+                Username = "Barış Yerlikaya",
                 Changes = new List<Change>()
             };
 
@@ -80,7 +82,7 @@ namespace EntityGuardian
                             ActionType = "INSERT",
                             NewData = JsonSerializer.Serialize(entityEntry.Entity),
                             OldData = string.Empty,
-                            ModifiedDate = DateTime.Now,
+                            TransactionDate = DateTime.UtcNow,
                             EntityName = entityEntry.Entity.ToString()
                         });
 
@@ -106,7 +108,7 @@ namespace EntityGuardian
                                 NewData = JsonSerializer.Serialize(currentEntity),
                                 OldData = JsonSerializer.Serialize(dbEntity),
                                 EntityName = entityEntry.Entity.ToString(),
-                                ModifiedDate = DateTime.Now
+                                TransactionDate = DateTime.UtcNow
                             });
                         }
                         break;
@@ -120,7 +122,7 @@ namespace EntityGuardian
                             ActionType = "DELETE",
                             NewData = string.Empty,
                             OldData = JsonSerializer.Serialize(entityEntry.Entity),
-                            ModifiedDate = DateTime.Now,
+                            TransactionDate = DateTime.UtcNow,
                             EntityName = entityEntry.Entity.ToString()
                         });
 

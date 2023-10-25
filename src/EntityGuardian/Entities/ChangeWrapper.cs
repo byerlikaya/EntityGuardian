@@ -17,6 +17,8 @@ namespace EntityGuardian.Entities
 
         public string MethodName { get; set; }
 
+        public DateTime TransactionDate { get; set; }
+
         public List<Change> Changes { get; set; }
     }
 }

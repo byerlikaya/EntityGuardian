@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Storages\SqlServer\Install.sql" />
-    <EmbeddedResource Include="Dashboard\index.html" />
+    <EmbeddedResource Include="Dashboard/html/**/*" />
     <EmbeddedResource Include="Dashboard/css/**/*" />
     <EmbeddedResource Include="Dashboard/js/**/*" />
   </ItemGroup>
@@ -19,27 +19,28 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.12" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.13" />
   </ItemGroup>
   
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.1' ">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
+
   
   <ItemGroup>
-    <Compile Remove="NewFolder\**" />
-    <EmbeddedResource Remove="NewFolder\**" />
-    <None Remove="NewFolder\**" />
+    <None Remove="Dashboard\data.html" />
   </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Autofac.Extras.DynamicProxy" Version="7.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.34" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+    <PackageReference Include="SmartOrderBy" Version="1.0.0.1" />
+    <PackageReference Include="SmartWhere" Version="2.1.1.2" />
     <PackageReference Include="System.Text.Json" Version="7.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="7.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="7.0.13" />
   </ItemGroup>
 
 </Project>
