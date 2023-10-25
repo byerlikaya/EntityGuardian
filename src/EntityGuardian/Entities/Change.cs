@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace EntityGuardian.Entities
 {
     public class Change
     {
+        [Key]
         public Guid Guid { get; set; }
 
         public Guid ChangeWrapperGuid { get; set; }
@@ -16,6 +18,6 @@ namespace EntityGuardian.Entities
 
         public string NewData { get; set; }
 
-        public DateTime ModifiedDate { get; set; }
+        public DateTime TransactionDate { get; set; }
     }
 }

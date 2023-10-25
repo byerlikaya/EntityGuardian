@@ -1,6 +1,9 @@
 ﻿using EntityGuardian.BackgroundServices;
+using EntityGuardian.Enums;
 using EntityGuardian.Interfaces;
 using EntityGuardian.Options;
+using EntityGuardian.Storages;
+using EntityGuardian.Storages.SqlServer;
 using EntityGuardian.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +15,8 @@ namespace EntityGuardian.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddEntityGuardian(this IServiceCollection services,
+        public static IServiceCollection AddEntityGuardian(
+            this IServiceCollection services,
             Action<EntityGuardianOption> configuration)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
@@ -24,10 +28,18 @@ namespace EntityGuardian.Extensions
 
                 configuration(configurationInstance);
 
+                if (configurationInstance.StorageType == StorageType.SqlServer)
+                {
+                    services.AddSingleton<IStorageService, SqlServerStorage>();
+                    ServiceTool.Create(services);
+                }
+
                 return configurationInstance;
             });
 
             services.AddMemoryCache();
+
+            services.AddDbContext<EntityGuardianDbContext>();
 
             services.TryAddSingleton<ICacheManager, CacheManager>();
 
@@ -36,6 +48,8 @@ namespace EntityGuardian.Extensions
             services.TryAddSingleton<IHostedService, DataBackgroundService>();
 
             ServiceTool.Create(services);
+
+            return services;
         }
     }
 }

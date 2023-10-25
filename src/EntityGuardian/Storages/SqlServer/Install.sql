@@ -11,7 +11,7 @@ BEGIN
         [EntityName] [nvarchar](500) NULL,
         [OldData] [text] NULL,
         [NewData] [text] NULL,
-        [ModifiedDate] [datetime] NULL,
+        [TransactionDate] [datetime] NULL,
         CONSTRAINT [PK_Change]
             PRIMARY KEY CLUSTERED ([Guid] ASC)
             WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON,
@@ -33,10 +33,11 @@ BEGIN
     CREATE TABLE [dbo].[ChangeWrapper]
     (
         [Guid] [uniqueidentifier] NOT NULL,
-        [UserName] [nvarchar](50) NULL,
+        [Username] [nvarchar](50) NULL,
         [IpAddress] [nvarchar](50) NULL,
         [TargetName] [nvarchar](500) NULL,
         [MethodName] [nvarchar](500) NULL,
+        [TransactionDate] [datetime] NULL,
         CONSTRAINT [PK_ChangeWrapper]
             PRIMARY KEY CLUSTERED ([Guid] ASC)
             WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON,

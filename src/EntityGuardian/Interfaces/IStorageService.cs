@@ -1,11 +1,21 @@
-﻿using System.Threading.Tasks;
+﻿using EntityGuardian.Entities;
+using EntityGuardian.Entities.Results;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EntityGuardian.Interfaces
 {
     public interface IStorageService
     {
-        void Install();
+        void CreateDatabaseTables();
 
-        Task CreateAsync();
+        Task Synchronization();
+
+        Task<IDataResult<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(SearcRequest searchDto);
+
+        Task<IDataResult<IEnumerable<Change>>> ChangesAsync(Guid changeWrapperGuid);
+
+        Task<Change> ChangeAsync(Guid guid);
     }
 }

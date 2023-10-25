@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace EntityGuardian.Entities
 {
     public class ChangeWrapper
     {
+        [Key]
         public Guid Guid { get; set; }
 
         public string Username { get; set; }
@@ -14,6 +16,8 @@ namespace EntityGuardian.Entities
         public string TargetName { get; set; }
 
         public string MethodName { get; set; }
+
+        public DateTime TransactionDate { get; set; }
 
         public List<Change> Changes { get; set; }
     }

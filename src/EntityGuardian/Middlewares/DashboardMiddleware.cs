@@ -1,0 +1,225 @@
+﻿using EntityGuardian.Entities.Results;
+using EntityGuardian.Interfaces;
+using EntityGuardian.Utilities;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
+using SmartOrderBy.Dtos;
+using System;
+using System.IO;
+using System.Reflection;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+#if NETSTANDARD2_1
+using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+#endif
+
+namespace EntityGuardian.Middlewares
+{
+    public class DashboardMiddleware
+    {
+        private const string EmbeddedFileNamespace = "EntityGuardian.Dashboard";
+        private readonly StaticFileMiddleware _staticFileMiddleware;
+        private readonly IStorageService _storageService;
+
+        public DashboardMiddleware(
+            RequestDelegate next,
+            IWebHostEnvironment hostingEnv,
+            ILoggerFactory loggerFactory)
+        {
+            _storageService = ServiceTool.ServiceProvider.GetService<IStorageService>();
+            _staticFileMiddleware = DashboardMiddleware.CreateStaticFileMiddleware(next, hostingEnv, loggerFactory);
+        }
+
+        public async Task Invoke(HttpContext httpContext)
+        {
+            var httpMethod = httpContext.Request.Method;
+            var path = httpContext.Request.Path.Value;
+
+            //// If the RoutePrefix is requested (with or without trailing slash), redirect to index URL
+            //if (httpMethod == "GET" && Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RoutePrefix)}/?$",  RegexOptions.IgnoreCase))
+            //{
+            //    // Use relative redirect to support proxy environments
+            //    var relativeIndexUrl = string.IsNullOrEmpty(path) || path.EndsWith("/")
+            //        ? "index.html"
+            //        : $"{path.Split('/').Last()}/index.html";
+
+            //    RespondWithRedirect(httpContext.Response, relativeIndexUrl);
+            //    return;
+            //}
+
+            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape("")}/?index.html$", RegexOptions.IgnoreCase))
+            {
+                await RespondWithIndexHtml(httpContext.Response);
+                return;
+            }
+
+            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape("")}/?data.html$", RegexOptions.IgnoreCase))
+            {
+                await RespondWithDataHtml(httpContext);
+                return;
+            }
+
+            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape("")}/?change-wrapper-detail.html$", RegexOptions.IgnoreCase))
+            {
+                await RespondWithChangeWrapperDetailHtml(httpContext);
+                return;
+            }
+
+            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape("")}/?change-detail.html$", RegexOptions.IgnoreCase))
+            {
+                await RespondWithChangeDetailHtml(httpContext);
+                return;
+            }
+
+            await _staticFileMiddleware.Invoke(httpContext);
+        }
+
+        private async Task RespondWithChangeWrapperDetailHtml(HttpContext httpContext)
+        {
+            httpContext.Response.StatusCode = 200;
+            httpContext.Response.ContentType = "text/html;charset=utf-8";
+            var guid = httpContext.Request.Query["guid"].ToString();
+            await using var stream = ChangeWrapperDetailStream();
+            using var reader = new StreamReader(stream);
+            var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
+            htmlBuilder.Replace("#guid", guid);
+            await httpContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+        }
+
+        private async Task RespondWithChangeDetailHtml(HttpContext httpContext)
+        {
+            httpContext.Response.StatusCode = 200;
+            httpContext.Response.ContentType = "text/html;charset=utf-8";
+            var guid = httpContext.Request.Query["guid"].ToString();
+            await using var stream = ChangeDetailStream();
+            using var reader = new StreamReader(stream);
+            var change = await _storageService.ChangeAsync(Guid.Parse(guid));
+            var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
+
+            htmlBuilder.Replace("#old-data", change.OldData);
+            htmlBuilder.Replace("#new-data", change.NewData);
+
+            await httpContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+        }
+
+        private async Task RespondWithDataHtml(HttpContext httpContext)
+        {
+            httpContext.Response.StatusCode = 200;
+            httpContext.Response.ContentType = "application/json; charset=utf-8";
+
+            var type = httpContext.Request.Query["type"].ToString();
+
+            using (var stream = DataStream())
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
+
+                    if (string.Equals(type, "changewrappers", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var start = int.Parse(httpContext.Request.Query["start"]);
+                        var max = int.Parse(httpContext.Request.Query["length"]);
+                        var orderIndex = httpContext.Request.Query["order[0][column]"].ToString();
+                        var orderName = httpContext.Request.Query[$"columns[{orderIndex}][data]"].ToString();
+                        var orderType = httpContext.Request.Query["order[0][dir]"].ToString();
+                        var searchValue = httpContext.Request.Query["search[value]"].ToString();
+
+                        var changeWrappers = await _storageService.ChangeWrappersAsync(new SearcRequest
+                        {
+                            SearchValue = searchValue,
+                            Start = start,
+                            Max = max,
+                            OrderBy = new Sorting
+                            {
+                                Name = orderName,
+                                OrderType = orderType
+                            }
+                        });
+
+                        var json = JsonSerializer.Serialize(changeWrappers, new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true,
+                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                        });
+
+                        htmlBuilder.Replace("#entity-guardian-data", json);
+                    }
+                    else if (string.Equals(type, "changes", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var guid = Guid.Parse(httpContext.Request.Query["guid"]);
+
+                        var changes = await _storageService.ChangesAsync(guid);
+
+                        var json = JsonSerializer.Serialize(changes, new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true,
+                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                        });
+
+                        htmlBuilder.Replace("#entity-guardian-data", json);
+                    }
+
+
+                    await httpContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+                }
+            }
+        }
+
+        private async Task RespondWithIndexHtml(HttpResponse response)
+        {
+            response.StatusCode = 200;
+            response.ContentType = "text/html;charset=utf-8";
+
+            await using var stream = IndexStream();
+            using var reader = new StreamReader(stream);
+            var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
+            await response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+        }
+
+        private Func<Stream> IndexStream { get; } = ()
+            => typeof(DashboardMiddleware)
+                .GetTypeInfo()
+                .Assembly
+                .GetManifestResourceStream("EntityGuardian.Dashboard.html.index.html");
+
+        private Func<Stream> DataStream { get; } = ()
+            => typeof(DashboardMiddleware)
+                .GetTypeInfo()
+                .Assembly
+                .GetManifestResourceStream("EntityGuardian.Dashboard.html.data.html");
+
+        private Func<Stream> ChangeWrapperDetailStream { get; } = ()
+            => typeof(DashboardMiddleware)
+                .GetTypeInfo()
+                .Assembly
+                .GetManifestResourceStream("EntityGuardian.Dashboard.html.change-wrapper-detail.html");
+
+        private Func<Stream> ChangeDetailStream { get; } = ()
+            => typeof(DashboardMiddleware)
+                .GetTypeInfo()
+                .Assembly
+                .GetManifestResourceStream("EntityGuardian.Dashboard.html.change-detail.html");
+
+        private static StaticFileMiddleware CreateStaticFileMiddleware(
+            RequestDelegate next,
+            IWebHostEnvironment hostingEnv,
+            ILoggerFactory loggerFactory)
+        {
+            var staticFileOptions = new StaticFileOptions
+            {
+                RequestPath = "",
+                FileProvider = new EmbeddedFileProvider(typeof(DashboardMiddleware).GetTypeInfo().Assembly, EmbeddedFileNamespace),
+            };
+
+            return new StaticFileMiddleware(next, hostingEnv, Microsoft.Extensions.Options.Options.Create(staticFileOptions), loggerFactory);
+        }
+    }
+}

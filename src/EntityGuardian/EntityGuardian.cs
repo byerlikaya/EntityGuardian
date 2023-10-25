@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace EntityGuardian
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Assembly, AllowMultiple = true, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Assembly)]
     public class EntityGuardian : Attribute, IInterceptor
     {
         private ChangeWrapper _changeWrapper;
@@ -25,9 +25,9 @@ namespace EntityGuardian
         {
             var httpContextAccessor = ServiceTool.ServiceProvider.GetService<IHttpContextAccessor>();
 
-            _ipAddress = httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            _ipAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
 
-            if (httpContextAccessor.HttpContext.Items["DbContext"] is not DbContext dbContext)
+            if (httpContextAccessor.HttpContext?.Items["DbContext"] is not DbContext dbContext)
                 return;
 
             _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
@@ -47,6 +47,8 @@ namespace EntityGuardian
                 TargetName = invocation.TargetType.FullName,
                 MethodName = invocation.Method.Name,
                 IpAddress = _ipAddress,
+                TransactionDate = DateTime.UtcNow,
+                Username = "Barış Yerlikaya",
                 Changes = new List<Change>()
             };
 
@@ -80,7 +82,7 @@ namespace EntityGuardian
                             ActionType = "INSERT",
                             NewData = JsonSerializer.Serialize(entityEntry.Entity),
                             OldData = string.Empty,
-                            ModifiedDate = DateTime.Now,
+                            TransactionDate = DateTime.UtcNow,
                             EntityName = entityEntry.Entity.ToString()
                         });
 
@@ -106,7 +108,7 @@ namespace EntityGuardian
                                 NewData = JsonSerializer.Serialize(currentEntity),
                                 OldData = JsonSerializer.Serialize(dbEntity),
                                 EntityName = entityEntry.Entity.ToString(),
-                                ModifiedDate = DateTime.Now
+                                TransactionDate = DateTime.UtcNow
                             });
                         }
                         break;
@@ -120,7 +122,7 @@ namespace EntityGuardian
                             ActionType = "DELETE",
                             NewData = string.Empty,
                             OldData = JsonSerializer.Serialize(entityEntry.Entity),
-                            ModifiedDate = DateTime.Now,
+                            TransactionDate = DateTime.UtcNow,
                             EntityName = entityEntry.Entity.ToString()
                         });
 

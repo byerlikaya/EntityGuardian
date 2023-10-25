@@ -1,5 +1,4 @@
-﻿using Cronos;
-using EntityGuardian.Interfaces;
+﻿using EntityGuardian.Interfaces;
 using EntityGuardian.Options;
 using EntityGuardian.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +21,9 @@ namespace EntityGuardian.BackgroundServices
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(GetDelayTime(), cancellationToken);
-                await _storageService.CreateAsync();
+
+                await _storageService.Synchronization();
+
                 _nextRunTime = GetNextDate();
             }
         }
@@ -41,12 +42,6 @@ namespace EntityGuardian.BackgroundServices
             return (int)delayTime;
         }
 
-        private DateTime GetNextDate()
-        {
-            var cron = CronExpression.Parse(_configuration.CronExpression, CronFormat.IncludeSeconds);
-            var next = cron.GetNextOccurrence(DateTime.UtcNow);
-            return next ?? DateTime.UtcNow;
-        }
-
+        private DateTime GetNextDate() => DateTime.UtcNow.AddSeconds(_configuration.DataSynchronizationTimeout);
     }
 }

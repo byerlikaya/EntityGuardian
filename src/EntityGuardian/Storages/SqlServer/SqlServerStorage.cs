@@ -1,112 +1,93 @@
-﻿using Dapper;
-using EntityGuardian.Entities;
+﻿using EntityGuardian.Entities;
+using EntityGuardian.Entities.Results;
 using EntityGuardian.Interfaces;
 using EntityGuardian.Utilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SmartOrderBy;
+using SmartWhere;
 using System;
-using System.Data;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace EntityGuardian.Storages.SqlServer
 {
     internal class SqlServerStorage : IStorageService
     {
         private readonly ICacheManager _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
-        private readonly IDbConnection _dbConnection = ServiceTool.ServiceProvider.GetService<IDbConnection>();
 
-        public void Install()
-            => _dbConnection.Execute(GetSqlScript());
+        private readonly EntityGuardianDbContext _context = ServiceTool.ServiceProvider.GetService<EntityGuardianDbContext>();
 
-        public async Task CreateAsync()
+        public void CreateDatabaseTables() => _context.Database.ExecuteSqlRaw(GetSqlScript());
+
+        public async Task Synchronization()
         {
             var memoryData = _cacheManager.GetList<ChangeWrapper>(nameof(ChangeWrapper));
 
             if (memoryData.Any())
             {
-                if (_dbConnection.State == ConnectionState.Closed)
-                    _dbConnection.Open();
-
-                using (var transaction = _dbConnection.BeginTransaction())
+                using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+                try
                 {
-                    try
-                    {
-                        var changeWrappers = memoryData
-                            .Select(x => x.data)
-                            .ToList();
+                    var changeWrappers = memoryData
+                        .Select(x => x.data)
+                        .ToList();
 
-                        await _dbConnection.ExecuteAsync("""
-                                                         INSERT INTO [dbo].[ChangeWrapper]
-                                                                    ([Guid]
-                                                                    ,[UserName]
-                                                                    ,[IpAddress]
-                                                                    ,[TargetName]
-                                                                    ,[MethodName])
-                                                              VALUES
-                                                                    (@Guid,
-                                                         			@UserName,
-                                                         			@IpAddress,
-                                                         		    @TargetName,
-                                                         		    @MethodName)
-                                                         """, changeWrappers, transaction);
+                    await _context.ChangeWrapper.AddRangeAsync(changeWrappers);
 
-                        var changes = changeWrappers
-                            .SelectMany(x => x.Changes)
-                            .ToList();
+                    await _context.SaveChangesAsync();
 
-                        if (changes.Any())
-                        {
-                            await _dbConnection.ExecuteAsync("""
-                                                             INSERT INTO [dbo].[Change]
-                                                                        ([Guid]
-                                                                        ,[ChangeWrapperGuid]
-                                                                        ,[ActionType]
-                                                                        ,[EntityName]
-                                                                        ,[OldData]
-                                                                        ,[NewData]
-                                                                        ,[ModifiedDate])
-                                                                  VALUES
-                                                                        (@Guid,
-                                                             		    @ChangeWrapperGuid,
-                                                             			@ActionType,
-                                                             			@EntityName,
-                                                             			@OldData,
-                                                             			@NewData,
-                                                             			@ModifiedDate)
-                                                             """, changes, transaction);
-                        }
+                    transaction.Complete();
 
-                        transaction.Commit();
-
-                        memoryData.ForEach(x => _cacheManager.Remove(x.key));
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-                    }
+                    memoryData.ForEach(x => _cacheManager.Remove(x.key));
+                }
+                catch
+                {
+                    transaction.Dispose();
                 }
             }
         }
+
+        public async Task<IDataResult<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(SearcRequest searchDto)
+        {
+            var query = _context.ChangeWrapper
+                .Where(searchDto)
+                .OrderBy(searchDto.OrderBy);
+
+            var count = await query.CountAsync();
+
+            var result = await query
+                .Skip(searchDto.Start)
+                .Take(searchDto.Max == default ? 10 : searchDto.Max)
+                .ToListAsync();
+
+            return new DataResult<List<ChangeWrapper>>(result, count);
+        }
+
+        public async Task<IDataResult<IEnumerable<Change>>> ChangesAsync(Guid changeWrapperGuid)
+        {
+            var query = _context.Change
+                .Where(x => x.ChangeWrapperGuid == changeWrapperGuid);
+
+            return new DataResult<IEnumerable<Change>>(await query.ToListAsync(), await query.CountAsync());
+        }
+
+        public async Task<Change> ChangeAsync(Guid guid)
+            => await _context.Change.FirstOrDefaultAsync(x => x.Guid == guid);
 
         private static string GetSqlScript()
             => GetStringResource(typeof(SqlServerStorage).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");
 
         private static string GetStringResource(Assembly assembly, string resourceName)
         {
-            using (var stream = assembly.GetManifestResourceStream(resourceName))
-            {
-                if (stream == null)
-                {
-                    throw new InvalidOperationException($"Requested resource `{resourceName}` was not found in the assembly `{assembly}`.");
-                }
-
-                using (var reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
+            using var stream = assembly.GetManifestResourceStream(resourceName)
+                               ?? throw new InvalidOperationException($"Requested resource `{resourceName}` was not found in the assembly `{assembly}`.");
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
         }
     }
 }

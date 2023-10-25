@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using EntityGuardian.Interfaces;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.IO;
 using System.Reflection;
@@ -26,7 +26,8 @@ namespace EntityGuardian.Dashboard
         public DashboardMiddleware(
             RequestDelegate next,
             IWebHostEnvironment hostingEnv,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            IStorageService storageService)
         {
 
             _staticFileMiddleware = DashboardMiddleware.CreateStaticFileMiddleware(next, hostingEnv, loggerFactory);
@@ -67,12 +68,18 @@ namespace EntityGuardian.Dashboard
             {
                 using (var reader = new StreamReader(stream))
                 {
-                    // Inject arguments before writing to response
+
                     var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
-                    //foreach (var entry in GetIndexArguments())
-                    //{
-                    //    htmlBuilder.Replace(entry.Key, entry.Value);
-                    //}
+
+                    StringBuilder stringBuilder = new();
+
+                    for (int i = 0; i < 100; i++)
+                    {
+                        stringBuilder.Append("<tr>\r\n    <td>Tiger Nixon</td>\r\n    <td>System Architect</td>\r\n    <td>Edinburgh</td>\r\n    <td>61</td>\r\n    <td>2011-04-25</td>\r\n    <td>$320,800</td>\r\n</tr>");
+                    }
+
+                    htmlBuilder.Replace("#entity-guardian-data", stringBuilder.ToString());
+
 
                     await response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
                 }
@@ -93,7 +100,7 @@ namespace EntityGuardian.Dashboard
                 FileProvider = new EmbeddedFileProvider(typeof(DashboardMiddleware).GetTypeInfo().Assembly, EmbeddedFileNamespace),
             };
 
-            return new StaticFileMiddleware(next, hostingEnv, Options.Create(staticFileOptions), loggerFactory);
+            return new StaticFileMiddleware(next, hostingEnv, Microsoft.Extensions.Options.Options.Create(staticFileOptions), loggerFactory);
         }
     }
 }
