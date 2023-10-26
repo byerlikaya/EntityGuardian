@@ -2,25 +2,28 @@
 using Autofac.Extras.DynamicProxy;
 using Castle.DynamicProxy;
 using System.Reflection;
+using Module = Autofac.Module;
 
 namespace EntityGuardian.DependencyResolvers
 {
-    public class EntityGuardianBusinessModule : Autofac.Module
+    public class EntityGuardianBusinessModule : Module
     {
+        public Assembly Assembly { get; set; }
+
+        public EntityGuardianBusinessModule(Assembly assembly) => Assembly = assembly;
+
         protected override void Load(ContainerBuilder builder)
         {
-            var assembly = Assembly.GetEntryAssembly();
-
-            if (assembly != null)
+            if (Assembly != null)
             {
-                builder.RegisterAssemblyTypes(assembly)
-                       .AsImplementedInterfaces()
-                       .EnableInterfaceInterceptors(new ProxyGenerationOptions
-                       {
-                           Selector = new InterceptorSelector()
-                       })
-                       .SingleInstance()
-                       .InstancePerDependency();
+                builder.RegisterAssemblyTypes(Assembly)
+                    .AsImplementedInterfaces()
+                    .EnableInterfaceInterceptors(new ProxyGenerationOptions
+                    {
+                        Selector = new InterceptorSelector()
+                    })
+                    .SingleInstance()
+                    .InstancePerDependency();
             }
         }
     }

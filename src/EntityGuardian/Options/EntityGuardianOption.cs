@@ -4,6 +4,9 @@ namespace EntityGuardian.Options
 {
     public class EntityGuardianOption
     {
+
+        public string RoutePrefix { get; set; } = "entity-guardian";
+
         /// <summary>
         /// will be defined in seconds.
         /// </summary>

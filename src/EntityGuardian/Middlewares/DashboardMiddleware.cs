@@ -1,5 +1,6 @@
 ﻿using EntityGuardian.Entities.Results;
 using EntityGuardian.Interfaces;
+using EntityGuardian.Options;
 using EntityGuardian.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using SmartOrderBy.Dtos;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -25,6 +27,7 @@ namespace EntityGuardian.Middlewares
 {
     public class DashboardMiddleware
     {
+        private readonly EntityGuardianOption _options;
         private const string EmbeddedFileNamespace = "EntityGuardian.Dashboard";
         private readonly StaticFileMiddleware _staticFileMiddleware;
         private readonly IStorageService _storageService;
@@ -32,10 +35,12 @@ namespace EntityGuardian.Middlewares
         public DashboardMiddleware(
             RequestDelegate next,
             IWebHostEnvironment hostingEnv,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            EntityGuardianOption options)
         {
+            _options = options;
             _storageService = ServiceTool.ServiceProvider.GetService<IStorageService>();
-            _staticFileMiddleware = DashboardMiddleware.CreateStaticFileMiddleware(next, hostingEnv, loggerFactory);
+            _staticFileMiddleware = CreateStaticFileMiddleware(next, hostingEnv, loggerFactory, options);
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -43,43 +48,48 @@ namespace EntityGuardian.Middlewares
             var httpMethod = httpContext.Request.Method;
             var path = httpContext.Request.Path.Value;
 
-            //// If the RoutePrefix is requested (with or without trailing slash), redirect to index URL
-            //if (httpMethod == "GET" && Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RoutePrefix)}/?$",  RegexOptions.IgnoreCase))
-            //{
-            //    // Use relative redirect to support proxy environments
-            //    var relativeIndexUrl = string.IsNullOrEmpty(path) || path.EndsWith("/")
-            //        ? "index.html"
-            //        : $"{path.Split('/').Last()}/index.html";
 
-            //    RespondWithRedirect(httpContext.Response, relativeIndexUrl);
-            //    return;
-            //}
+            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RoutePrefix)}/?$", RegexOptions.IgnoreCase))
+            {
+                var relativeIndexUrl = string.IsNullOrEmpty(path) || path.EndsWith("/")
+                    ? "index.html"
+                    : $"{path.Split('/').Last()}/index.html";
 
-            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape("")}/?index.html$", RegexOptions.IgnoreCase))
+                RespondWithRedirect(httpContext.Response, relativeIndexUrl);
+                return;
+            }
+
+            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape(_options.RoutePrefix)}/?index.html$", RegexOptions.IgnoreCase))
             {
                 await RespondWithIndexHtml(httpContext.Response);
                 return;
             }
 
-            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape("")}/?data.html$", RegexOptions.IgnoreCase))
+            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape(_options.RoutePrefix)}/?data.html$", RegexOptions.IgnoreCase))
             {
                 await RespondWithDataHtml(httpContext);
                 return;
             }
 
-            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape("")}/?change-wrapper-detail.html$", RegexOptions.IgnoreCase))
+            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape(_options.RoutePrefix)}/?change-wrapper-detail.html$", RegexOptions.IgnoreCase))
             {
                 await RespondWithChangeWrapperDetailHtml(httpContext);
                 return;
             }
 
-            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape("")}/?change-detail.html$", RegexOptions.IgnoreCase))
+            if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape(_options.RoutePrefix)}/?change-detail.html$", RegexOptions.IgnoreCase))
             {
                 await RespondWithChangeDetailHtml(httpContext);
                 return;
             }
 
             await _staticFileMiddleware.Invoke(httpContext);
+        }
+
+        private static void RespondWithRedirect(HttpResponse response, string location)
+        {
+            response.StatusCode = 301;
+            response.Headers["Location"] = location;
         }
 
         private async Task RespondWithChangeWrapperDetailHtml(HttpContext httpContext)
@@ -208,14 +218,15 @@ namespace EntityGuardian.Middlewares
                 .Assembly
                 .GetManifestResourceStream("EntityGuardian.Dashboard.html.change-detail.html");
 
-        private static StaticFileMiddleware CreateStaticFileMiddleware(
-            RequestDelegate next,
+        private static StaticFileMiddleware CreateStaticFileMiddleware(RequestDelegate next,
             IWebHostEnvironment hostingEnv,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory, EntityGuardianOption options)
         {
             var staticFileOptions = new StaticFileOptions
             {
-                RequestPath = "",
+                RequestPath = string.IsNullOrEmpty(options.RoutePrefix)
+                    ? string.Empty
+                    : $"/{options.RoutePrefix}",
                 FileProvider = new EmbeddedFileProvider(typeof(DashboardMiddleware).GetTypeInfo().Assembly, EmbeddedFileNamespace),
             };
 
