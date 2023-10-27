@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -65,8 +64,6 @@ namespace EntityGuardian
 
         private void DbContext_SavingChanges(object sender, SavingChangesEventArgs e)
         {
-            var aa = Assembly.GetExecutingAssembly();
-
             var entityEntries = _dbContext.ChangeTracker
                 .Entries()
                 .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)

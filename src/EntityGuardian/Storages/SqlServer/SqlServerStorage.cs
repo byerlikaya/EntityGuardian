@@ -1,9 +1,7 @@
 ﻿using EntityGuardian.Entities;
 using EntityGuardian.Entities.Results;
 using EntityGuardian.Interfaces;
-using EntityGuardian.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using SmartOrderBy;
 using SmartWhere;
 using System;
@@ -21,10 +19,12 @@ namespace EntityGuardian.Storages.SqlServer
         private readonly ICacheManager _cacheManager;
         private readonly EntityGuardianDbContext _context;
 
-        public SqlServerStorage()
+        public SqlServerStorage(EntityGuardianDbContext context, ICacheManager cacheManager)
         {
-            _context = ServiceTool.ServiceProvider.GetService<EntityGuardianDbContext>();
-            _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
+            _context = context;
+            _cacheManager = cacheManager;
+
+            CreateDatabaseTables(true);
         }
 
         public void CreateDatabaseTables(bool clearDataOnStartup)
@@ -94,7 +94,7 @@ namespace EntityGuardian.Storages.SqlServer
             => await _context.Change.FirstOrDefaultAsync(x => x.Guid == guid);
 
         private static string GetSqlScript()
-            => GetStringResource(typeof(SqlServerStorage).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");
+            => GetStringResource(typeof(EntityGuardian).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");
 
         private static string GetStringResource(Assembly assembly, string resourceName)
         {

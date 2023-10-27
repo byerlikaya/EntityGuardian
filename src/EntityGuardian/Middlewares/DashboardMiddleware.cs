@@ -1,12 +1,10 @@
 ﻿using EntityGuardian.Entities.Results;
 using EntityGuardian.Interfaces;
 using EntityGuardian.Options;
-using EntityGuardian.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using SmartOrderBy.Dtos;
@@ -36,10 +34,11 @@ namespace EntityGuardian.Middlewares
             RequestDelegate next,
             IWebHostEnvironment hostingEnv,
             ILoggerFactory loggerFactory,
-            EntityGuardianOption options)
+            EntityGuardianOption options,
+            IStorageService storageService)
         {
             _options = options;
-            _storageService = ServiceTool.ServiceProvider.GetService<IStorageService>();
+            _storageService = storageService;
             _staticFileMiddleware = CreateStaticFileMiddleware(next, hostingEnv, loggerFactory, options);
         }
 

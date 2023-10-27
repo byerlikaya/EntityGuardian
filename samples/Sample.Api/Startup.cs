@@ -37,7 +37,7 @@ namespace Sample.Api
             {
                 configuration.DataSynchronizationTimeout = 5;
                 configuration.StorageType = StorageType.SqlServer;
-                configuration.RoutePrefix = "asd";
+                configuration.RoutePrefix = "";
                 configuration.ClearDataOnStartup = true;
             });
 

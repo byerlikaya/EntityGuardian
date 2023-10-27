@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EntityGuardian.Interfaces
 {
-    internal interface IStorageService
+    public interface IStorageService
     {
         void CreateDatabaseTables(bool clearDataOnStartup);
 

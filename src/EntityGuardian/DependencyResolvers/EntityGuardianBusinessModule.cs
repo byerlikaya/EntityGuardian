@@ -2,13 +2,12 @@
 using Autofac.Extras.DynamicProxy;
 using Castle.DynamicProxy;
 using System.Reflection;
-using Module = Autofac.Module;
 
 namespace EntityGuardian.DependencyResolvers
 {
-    public class EntityGuardianBusinessModule : Module
+    public class EntityGuardianBusinessModule : Autofac.Module
     {
-        public Assembly Assembly { get; set; }
+        private Assembly Assembly { get; set; }
 
         public EntityGuardianBusinessModule(Assembly assembly) => Assembly = assembly;
 

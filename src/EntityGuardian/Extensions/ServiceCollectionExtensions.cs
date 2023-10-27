@@ -1,5 +1,4 @@
 ﻿using EntityGuardian.BackgroundServices;
-using EntityGuardian.Enums;
 using EntityGuardian.Interfaces;
 using EntityGuardian.Options;
 using EntityGuardian.Storages;
@@ -15,41 +14,34 @@ namespace EntityGuardian.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddEntityGuardian(
-            this IServiceCollection services,
+        public static void AddEntityGuardian(this IServiceCollection services,
             Action<EntityGuardianOption> configuration)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
-            services.AddSingleton<EntityGuardianOption>(_ =>
+            services.TryAddSingleton(_ =>
             {
                 var configurationInstance = new EntityGuardianOption();
 
                 configuration(configurationInstance);
 
-                if (configurationInstance.StorageType == StorageType.SqlServer)
-                {
-                    services.AddSingleton<IStorageService, SqlServerStorage>();
-                    ServiceTool.Create(services);
-                }
-
                 return configurationInstance;
             });
 
-            services.AddMemoryCache();
-
             services.AddDbContext<EntityGuardianDbContext>();
+
+            services.AddMemoryCache();
 
             services.TryAddSingleton<ICacheManager, CacheManager>();
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+            services.TryAddSingleton<IStorageService, SqlServerStorage>();
+
             services.TryAddSingleton<IHostedService, DataBackgroundService>();
 
             ServiceTool.Create(services);
-
-            return services;
         }
     }
 }
