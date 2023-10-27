@@ -69,6 +69,8 @@ namespace EntityGuardian
                 .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
                 .ToList();
 
+            var index = 1;
+
             foreach (var entityEntry in entityEntries)
             {
                 switch (entityEntry.State)
@@ -79,13 +81,13 @@ namespace EntityGuardian
                         {
                             Guid = Guid.NewGuid(),
                             ChangeWrapperGuid = _changeWrapper.Guid,
-                            ActionType = "INSERT",
+                            TransactionType = "INSERT",
                             NewData = JsonSerializer.Serialize(entityEntry.Entity),
                             OldData = string.Empty,
                             TransactionDate = DateTime.UtcNow,
-                            EntityName = entityEntry.Entity.ToString()
+                            EntityName = entityEntry.Entity.ToString(),
+                            Order = index
                         });
-
                         break;
                     }
                     case EntityState.Modified:
@@ -104,11 +106,12 @@ namespace EntityGuardian
                             {
                                 Guid = Guid.NewGuid(),
                                 ChangeWrapperGuid = _changeWrapper.Guid,
-                                ActionType = "UPDATE",
+                                TransactionType = "UPDATE",
                                 NewData = JsonSerializer.Serialize(currentEntity),
                                 OldData = JsonSerializer.Serialize(dbEntity),
                                 EntityName = entityEntry.Entity.ToString(),
-                                TransactionDate = DateTime.UtcNow
+                                TransactionDate = DateTime.UtcNow,
+                                Order = index
                             });
                         }
                         break;
@@ -119,16 +122,17 @@ namespace EntityGuardian
                         {
                             Guid = Guid.NewGuid(),
                             ChangeWrapperGuid = _changeWrapper.Guid,
-                            ActionType = "DELETE",
+                            TransactionType = "DELETE",
                             NewData = string.Empty,
                             OldData = JsonSerializer.Serialize(entityEntry.Entity),
                             TransactionDate = DateTime.UtcNow,
-                            EntityName = entityEntry.Entity.ToString()
+                            EntityName = entityEntry.Entity.ToString(),
+                            Order = index
                         });
-
                         break;
                     }
                 }
+                index++;
             }
 
             var key = $"{nameof(ChangeWrapper)}_{_dbContext.ContextId}";

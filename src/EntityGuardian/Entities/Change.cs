@@ -10,7 +10,9 @@ namespace EntityGuardian.Entities
 
         public Guid ChangeWrapperGuid { get; set; }
 
-        public string ActionType { get; set; }
+        public int Order { get; set; }
+
+        public string TransactionType { get; set; }
 
         public string EntityName { get; set; }
 

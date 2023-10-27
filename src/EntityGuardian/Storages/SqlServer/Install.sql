@@ -19,7 +19,8 @@ BEGIN
     (
         [Guid] [uniqueidentifier] NOT NULL,
         [ChangeWrapperGuid] [uniqueidentifier] NOT NULL,
-        [ActionType] [nvarchar](500) NULL,
+        [Order] [int] NULL,
+        [TransactionType] [nvarchar](500) NULL,
         [EntityName] [nvarchar](500) NULL,
         [OldData] [text] NULL,
         [NewData] [text] NULL,
