@@ -19,24 +19,29 @@ namespace EntityGuardian.Storages.SqlServer
     {
         private readonly ICacheManager _cacheManager;
         private readonly EntityGuardianDbContext _context;
+        private readonly EntityGuardianOption _options;
 
-        public SqlServerStorage(EntityGuardianDbContext context, ICacheManager cacheManager, EntityGuardianOption options)
+        public SqlServerStorage(
+            EntityGuardianDbContext context,
+            ICacheManager cacheManager,
+            EntityGuardianOption options)
         {
             _context = context;
             _cacheManager = cacheManager;
+            _options = options;
 
-            CreateDatabaseTables(options.ClearDataOnStartup);
+            CreateDatabaseTables();
         }
 
-        public void CreateDatabaseTables(bool clearDataOnStartup)
+        public void CreateDatabaseTables()
         {
-            _context.Database.ExecuteSqlRaw(GetSqlScript());
+            _context.Database.ExecuteSqlRaw(GetSqlScript(_options.EntityGuardiaonSchemaName));
 
-            if (!clearDataOnStartup)
+            if (!_options.ClearDataOnStartup)
                 return;
 
-            _context.Database.ExecuteSqlRaw("DELETE FROM Change");
-            _context.Database.ExecuteSqlRaw("DELETE FROM ChangeWrapper");
+            _context.Database.ExecuteSqlRaw($"DELETE FROM {SchemaName(_options.EntityGuardiaonSchemaName)}.Change");
+            _context.Database.ExecuteSqlRaw($"DELETE FROM {SchemaName(_options.EntityGuardiaonSchemaName)}.ChangeWrapper");
         }
 
         public async Task Synchronization()
@@ -94,8 +99,15 @@ namespace EntityGuardian.Storages.SqlServer
         public async Task<Change> ChangeAsync(Guid guid)
             => await _context.Change.FirstOrDefaultAsync(x => x.Guid == guid);
 
-        private static string GetSqlScript()
-            => GetStringResource(typeof(EntityGuardian).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");
+        private static string GetSqlScript(string schema)
+        {
+            var script = GetStringResource(typeof(EntityGuardian).GetTypeInfo().Assembly,
+                "EntityGuardian.Storages.SqlServer.Install.sql");
+
+            script = script.Replace("$(EntityGuardiaonSchemaName)", schema);
+
+            return script;
+        }
 
         private static string GetStringResource(Assembly assembly, string resourceName)
         {
@@ -103,6 +115,13 @@ namespace EntityGuardian.Storages.SqlServer
                                ?? throw new InvalidOperationException($"Requested resource `{resourceName}` was not found in the assembly `{assembly}`.");
             using var reader = new StreamReader(stream);
             return reader.ReadToEnd();
+        }
+
+        private static string SchemaName(string schema)
+        {
+            return !string.IsNullOrWhiteSpace(schema)
+                ? schema
+                : "EntityGuardian";
         }
     }
 }

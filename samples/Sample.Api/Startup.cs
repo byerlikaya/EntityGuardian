@@ -39,6 +39,7 @@ namespace Sample.Api
                 configuration.StorageType = StorageType.SqlServer;
                 configuration.RoutePrefix = "";
                 configuration.ClearDataOnStartup = false;
+                configuration.EntityGuardiaonSchemaName = "Example";
             });
 
         }

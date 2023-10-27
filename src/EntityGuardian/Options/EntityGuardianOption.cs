@@ -15,5 +15,7 @@ namespace EntityGuardian.Options
         public int DataSynchronizationTimeout { get; set; }
 
         public StorageType StorageType { get; set; }
+
+        public string EntityGuardiaonSchemaName { get; set; } = "EntityGuardian";
     }
 }

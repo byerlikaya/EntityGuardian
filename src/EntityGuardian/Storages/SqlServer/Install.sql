@@ -1,9 +1,21 @@
-﻿IF NOT EXISTS (SELECT name FROM [sys].[tables] WHERE name = 'Change')
+﻿DECLARE @SchemaLockResult INT;
+EXEC @SchemaLockResult = sp_getapplock @Resource = '$(EntityGuardiaonSchemaName):SchemaLock', @LockMode = 'Exclusive'
+
+IF NOT EXISTS (SELECT [schema_id] FROM [sys].[schemas] WHERE [name] = '$(EntityGuardiaonSchemaName)')
+BEGIN
+    EXEC (N'CREATE SCHEMA [$(EntityGuardiaonSchemaName)]');
+    PRINT 'Created database schema [$(EntityGuardiaonSchemaName)]';
+END
+
+DECLARE @SCHEMA_ID int;
+SELECT @SCHEMA_ID = [schema_id] FROM [sys].[schemas] WHERE [name] = '$(EntityGuardiaonSchemaName)';
+
+IF NOT EXISTS (SELECT name FROM [sys].[tables] WHERE name = 'Change' AND [schema_id] = @SCHEMA_ID)
 BEGIN
 
     SET ANSI_NULLS ON
     SET QUOTED_IDENTIFIER ON
-    CREATE TABLE [dbo].[Change]
+    CREATE TABLE [$(EntityGuardiaonSchemaName)].[Change]
     (
         [Guid] [uniqueidentifier] NOT NULL,
         [ChangeWrapperGuid] [uniqueidentifier] NOT NULL,
@@ -25,12 +37,12 @@ IF NOT EXISTS
 (
     SELECT name
     FROM [sys].[tables]
-    WHERE name = 'ChangeWrapper'
+    WHERE name = 'ChangeWrapper' AND [schema_id] = @SCHEMA_ID
 )
 BEGIN
     SET ANSI_NULLS ON
     SET QUOTED_IDENTIFIER ON
-    CREATE TABLE [dbo].[ChangeWrapper]
+    CREATE TABLE [$(EntityGuardiaonSchemaName)].[ChangeWrapper]
     (
         [Guid] [uniqueidentifier] NOT NULL,
         [Username] [nvarchar](50) NULL,
@@ -55,12 +67,12 @@ IF NOT EXISTS
 )
 BEGIN
 
-    ALTER TABLE [dbo].[Change] WITH CHECK
+    ALTER TABLE [$(EntityGuardiaonSchemaName)].[Change] WITH CHECK
     ADD CONSTRAINT [FK_Change_ChangeWrapper]
         FOREIGN KEY ([ChangeWrapperGuid])
-        REFERENCES [dbo].[ChangeWrapper] ([Guid])
+        REFERENCES [$(EntityGuardiaonSchemaName)].[ChangeWrapper] ([Guid])
 
-    ALTER TABLE [dbo].[Change] CHECK CONSTRAINT [FK_Change_ChangeWrapper]
+    ALTER TABLE [$(EntityGuardiaonSchemaName)].[Change] CHECK CONSTRAINT [FK_Change_ChangeWrapper]
 END
 
 
