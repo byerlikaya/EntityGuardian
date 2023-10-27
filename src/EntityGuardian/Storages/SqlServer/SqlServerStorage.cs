@@ -1,9 +1,7 @@
 ﻿using EntityGuardian.Entities;
 using EntityGuardian.Entities.Results;
 using EntityGuardian.Interfaces;
-using EntityGuardian.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using SmartOrderBy;
 using SmartWhere;
 using System;
@@ -18,11 +16,27 @@ namespace EntityGuardian.Storages.SqlServer
 {
     internal class SqlServerStorage : IStorageService
     {
-        private readonly ICacheManager _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
+        private readonly ICacheManager _cacheManager;
+        private readonly EntityGuardianDbContext _context;
 
-        private readonly EntityGuardianDbContext _context = ServiceTool.ServiceProvider.GetService<EntityGuardianDbContext>();
+        public SqlServerStorage(EntityGuardianDbContext context, ICacheManager cacheManager)
+        {
+            _context = context;
+            _cacheManager = cacheManager;
 
-        public void CreateDatabaseTables() => _context.Database.ExecuteSqlRaw(GetSqlScript());
+            CreateDatabaseTables(true);
+        }
+
+        public void CreateDatabaseTables(bool clearDataOnStartup)
+        {
+            _context.Database.ExecuteSqlRaw(GetSqlScript());
+
+            if (!clearDataOnStartup)
+                return;
+
+            _context.Database.ExecuteSqlRaw("DELETE FROM Change");
+            _context.Database.ExecuteSqlRaw("DELETE FROM ChangeWrapper");
+        }
 
         public async Task Synchronization()
         {
@@ -80,7 +94,7 @@ namespace EntityGuardian.Storages.SqlServer
             => await _context.Change.FirstOrDefaultAsync(x => x.Guid == guid);
 
         private static string GetSqlScript()
-            => GetStringResource(typeof(SqlServerStorage).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");
+            => GetStringResource(typeof(EntityGuardian).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql");
 
         private static string GetStringResource(Assembly assembly, string resourceName)
         {

@@ -37,6 +37,8 @@ namespace Sample.Api
             {
                 configuration.DataSynchronizationTimeout = 5;
                 configuration.StorageType = StorageType.SqlServer;
+                configuration.RoutePrefix = "";
+                configuration.ClearDataOnStartup = true;
             });
 
         }
@@ -48,7 +50,10 @@ namespace Sample.Api
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api4 v1"));
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api4 v1");
+                });
             }
 
             app.UseEntityGuardian<MemoryDbContext>();
@@ -70,7 +75,8 @@ namespace Sample.Api
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            builder.RegisterModule(new EntityGuardianBusinessModule());
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            builder.RegisterModule(new EntityGuardianBusinessModule(assembly));
         }
     }
 }

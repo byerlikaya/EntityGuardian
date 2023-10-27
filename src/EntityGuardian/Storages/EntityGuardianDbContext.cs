@@ -24,12 +24,6 @@ namespace EntityGuardian.Storages
 
         public DbSet<Change> Change { get; set; }
 
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Entity<ChangeWrapper>().HasKey(x => x.Guid);
-        //    modelBuilder.Entity<Change>().HasKey(x => x.Guid);
-        //}
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

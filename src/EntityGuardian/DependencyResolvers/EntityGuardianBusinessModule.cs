@@ -7,20 +7,22 @@ namespace EntityGuardian.DependencyResolvers
 {
     public class EntityGuardianBusinessModule : Autofac.Module
     {
+        private Assembly Assembly { get; set; }
+
+        public EntityGuardianBusinessModule(Assembly assembly) => Assembly = assembly;
+
         protected override void Load(ContainerBuilder builder)
         {
-            var assembly = Assembly.GetEntryAssembly();
-
-            if (assembly != null)
+            if (Assembly != null)
             {
-                builder.RegisterAssemblyTypes(assembly)
-                       .AsImplementedInterfaces()
-                       .EnableInterfaceInterceptors(new ProxyGenerationOptions
-                       {
-                           Selector = new InterceptorSelector()
-                       })
-                       .SingleInstance()
-                       .InstancePerDependency();
+                builder.RegisterAssemblyTypes(Assembly)
+                    .AsImplementedInterfaces()
+                    .EnableInterfaceInterceptors(new ProxyGenerationOptions
+                    {
+                        Selector = new InterceptorSelector()
+                    })
+                    .SingleInstance()
+                    .InstancePerDependency();
             }
         }
     }

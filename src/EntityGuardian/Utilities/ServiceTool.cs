@@ -3,7 +3,7 @@ using System;
 
 namespace EntityGuardian.Utilities
 {
-    public static class ServiceTool
+    internal static class ServiceTool
     {
         public static IServiceProvider ServiceProvider { get; set; }
 

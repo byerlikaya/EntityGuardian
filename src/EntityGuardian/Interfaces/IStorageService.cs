@@ -8,7 +8,7 @@ namespace EntityGuardian.Interfaces
 {
     public interface IStorageService
     {
-        void CreateDatabaseTables();
+        void CreateDatabaseTables(bool clearDataOnStartup);
 
         Task Synchronization();
 
