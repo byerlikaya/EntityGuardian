@@ -3,7 +3,7 @@ using SmartWhere.Interfaces;
 
 namespace EntityGuardian.Entities.Results
 {
-    public class SearcRequest : IWhereClause
+    internal class SearcRequest : IWhereClause
     {
         public string SearchValue { get; set; }
         public int Start { get; set; }

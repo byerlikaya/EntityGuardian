@@ -1,6 +1,6 @@
 ﻿namespace EntityGuardian.Entities.Results
 {
-    public class DataResult<T> : IDataResult<T>
+    internal class DataResult<T> : IDataResult<T>
     {
         public DataResult(T resultObject, int dataCount)
         {

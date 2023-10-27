@@ -40,9 +40,6 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   
-  <ItemGroup>
-    <None Remove="Dashboard\favicon.ico" />
-  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Autofac.Extras.DynamicProxy" Version="7.1.0" />

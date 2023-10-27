@@ -7,6 +7,8 @@ namespace EntityGuardian.Options
 
         public string RoutePrefix { get; set; } = "entity-guardian";
 
+        public bool ClearDataOnStartup { get; set; }
+
         /// <summary>
         /// will be defined in seconds.
         /// </summary>

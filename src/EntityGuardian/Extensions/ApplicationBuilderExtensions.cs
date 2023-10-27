@@ -14,7 +14,7 @@ namespace EntityGuardian.Extensions
             where TContext : DbContext
         {
             var storage = ServiceTool.ServiceProvider.GetService<IStorageService>();
-            storage.CreateDatabaseTables();
+            storage.CreateDatabaseTables(true);
 
             app.UseMiddleware<DbContextMiddleware<TContext>>();
 

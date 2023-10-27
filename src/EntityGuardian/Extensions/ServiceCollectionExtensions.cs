@@ -45,7 +45,7 @@ namespace EntityGuardian.Extensions
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddSingleton<IHostedService, DataBackgroundService>();
+            services.TryAddSingleton<IHostedService, DataBackgroundService>();
 
             ServiceTool.Create(services);
 

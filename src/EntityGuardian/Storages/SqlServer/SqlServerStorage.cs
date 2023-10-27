@@ -18,11 +18,25 @@ namespace EntityGuardian.Storages.SqlServer
 {
     internal class SqlServerStorage : IStorageService
     {
-        private readonly ICacheManager _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
+        private readonly ICacheManager _cacheManager;
+        private readonly EntityGuardianDbContext _context;
 
-        private readonly EntityGuardianDbContext _context = ServiceTool.ServiceProvider.GetService<EntityGuardianDbContext>();
+        public SqlServerStorage()
+        {
+            _context = ServiceTool.ServiceProvider.GetService<EntityGuardianDbContext>();
+            _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
+        }
 
-        public void CreateDatabaseTables() => _context.Database.ExecuteSqlRaw(GetSqlScript());
+        public void CreateDatabaseTables(bool clearDataOnStartup)
+        {
+            _context.Database.ExecuteSqlRaw(GetSqlScript());
+
+            if (!clearDataOnStartup)
+                return;
+
+            _context.Database.ExecuteSqlRaw("DELETE FROM Change");
+            _context.Database.ExecuteSqlRaw("DELETE FROM ChangeWrapper");
+        }
 
         public async Task Synchronization()
         {
