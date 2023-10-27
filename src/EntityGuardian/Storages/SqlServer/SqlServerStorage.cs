@@ -1,6 +1,7 @@
 ﻿using EntityGuardian.Entities;
 using EntityGuardian.Entities.Results;
 using EntityGuardian.Interfaces;
+using EntityGuardian.Options;
 using Microsoft.EntityFrameworkCore;
 using SmartOrderBy;
 using SmartWhere;
@@ -19,12 +20,12 @@ namespace EntityGuardian.Storages.SqlServer
         private readonly ICacheManager _cacheManager;
         private readonly EntityGuardianDbContext _context;
 
-        public SqlServerStorage(EntityGuardianDbContext context, ICacheManager cacheManager)
+        public SqlServerStorage(EntityGuardianDbContext context, ICacheManager cacheManager, EntityGuardianOption options)
         {
             _context = context;
             _cacheManager = cacheManager;
 
-            CreateDatabaseTables(true);
+            CreateDatabaseTables(options.ClearDataOnStartup);
         }
 
         public void CreateDatabaseTables(bool clearDataOnStartup)
