@@ -2,7 +2,8 @@
     $("#entity-guardian-table").DataTable({
         processing: true,
         serverSide: true,
-        order: [[5, "desc"]],
+        searching: false,
+        order: [[4, "desc"]],
         ajax:
         {
             draw: 1,
@@ -49,7 +50,7 @@
                     return row.transactionDate;
                 }
             },
-            {          
+            {
                 searching: false,
                 sorting: false,
                 render: function (data, type, row) {
@@ -68,13 +69,15 @@
     $("#entity-guardian-detail-table").DataTable({
         processing: true,
         serverSide: true,
+        searching: false,
+        order: [[0, "asc"]],
         ajax:
         {
             draw: 1,
             start: 0,
             length: 10,
             url: getUrl(),
-            dataSrc: "resultObject",        
+            dataSrc: "resultObject",
             dataFilter: function (data) {
                 var json = jQuery.parseJSON(data);
                 json.recordsTotal = json.dataCount;

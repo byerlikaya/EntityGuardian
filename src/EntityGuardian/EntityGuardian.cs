@@ -21,14 +21,15 @@ namespace EntityGuardian
         private readonly DbContext _dbContext;
         private readonly string _ipAddress;
         private readonly ICacheManager _cacheManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public EntityGuardian()
         {
-            var httpContextAccessor = ServiceTool.ServiceProvider.GetService<IHttpContextAccessor>();
+            _httpContextAccessor = ServiceTool.ServiceProvider.GetService<IHttpContextAccessor>();
 
-            _ipAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+            _ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
 
-            if (httpContextAccessor.HttpContext?.Items["DbContext"] is not DbContext dbContext)
+            if (_httpContextAccessor.HttpContext?.Items["DbContext"] is not DbContext dbContext)
                 return;
 
             _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
@@ -42,6 +43,8 @@ namespace EntityGuardian
 
         public void Intercept(IInvocation invocation)
         {
+            var user = _httpContextAccessor.HttpContext!.User;
+
             _changeWrapper = new ChangeWrapper
             {
                 Guid = Guid.NewGuid(),
@@ -49,7 +52,7 @@ namespace EntityGuardian
                 MethodName = invocation.Method.Name,
                 IpAddress = _ipAddress,
                 TransactionDate = DateTime.UtcNow,
-                Username = "Barış Yerlikaya",
+                Username = user.Identity?.Name ?? "undefined",
                 Changes = new List<Change>()
             };
 
