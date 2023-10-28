@@ -1,5 +1,6 @@
 ﻿using Castle.DynamicProxy;
 using EntityGuardian.Entities;
+using EntityGuardian.Enums;
 using EntityGuardian.Interfaces;
 using EntityGuardian.Utilities;
 using Microsoft.AspNetCore.Http;
@@ -81,7 +82,7 @@ namespace EntityGuardian
                         {
                             Guid = Guid.NewGuid(),
                             ChangeWrapperGuid = _changeWrapper.Guid,
-                            TransactionType = "INSERT",
+                            TransactionType = TransactionType.INSERT.ToString(),
                             NewData = JsonSerializer.Serialize(entityEntry.Entity),
                             OldData = string.Empty,
                             TransactionDate = DateTime.UtcNow,
@@ -106,7 +107,7 @@ namespace EntityGuardian
                             {
                                 Guid = Guid.NewGuid(),
                                 ChangeWrapperGuid = _changeWrapper.Guid,
-                                TransactionType = "UPDATE",
+                                TransactionType = TransactionType.UPDATE.ToString(),
                                 NewData = JsonSerializer.Serialize(currentEntity),
                                 OldData = JsonSerializer.Serialize(dbEntity),
                                 EntityName = entityEntry.Entity.ToString(),
@@ -122,7 +123,7 @@ namespace EntityGuardian
                         {
                             Guid = Guid.NewGuid(),
                             ChangeWrapperGuid = _changeWrapper.Guid,
-                            TransactionType = "DELETE",
+                            TransactionType = TransactionType.DELETE.ToString(),
                             NewData = string.Empty,
                             OldData = JsonSerializer.Serialize(entityEntry.Entity),
                             TransactionDate = DateTime.UtcNow,

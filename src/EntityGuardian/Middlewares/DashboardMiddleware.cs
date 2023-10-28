@@ -1,5 +1,4 @@
-﻿using EntityGuardian.Entities.Results;
-using EntityGuardian.Interfaces;
+﻿using EntityGuardian.Interfaces;
 using EntityGuardian.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,6 +15,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using EntityGuardian.Entities.Dtos;
 
 #if NETSTANDARD2_1
 using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
@@ -132,17 +132,18 @@ namespace EntityGuardian.Middlewares
                 {
                     var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
 
+                    var start = int.Parse(httpContext.Request.Query["start"]);
+                    var max = int.Parse(httpContext.Request.Query["length"]);
+                    var orderIndex = httpContext.Request.Query["order[0][column]"].ToString();
+                    var orderName = httpContext.Request.Query[$"columns[{orderIndex}][data]"].ToString();
+                    var orderType = httpContext.Request.Query["order[0][dir]"].ToString();
+                    var searchValue = httpContext.Request.Query["search[value]"].ToString();
+
                     if (string.Equals(type, "changewrappers", StringComparison.OrdinalIgnoreCase))
                     {
-                        var start = int.Parse(httpContext.Request.Query["start"]);
-                        var max = int.Parse(httpContext.Request.Query["length"]);
-                        var orderIndex = httpContext.Request.Query["order[0][column]"].ToString();
-                        var orderName = httpContext.Request.Query[$"columns[{orderIndex}][data]"].ToString();
-                        var orderType = httpContext.Request.Query["order[0][dir]"].ToString();
-                        var searchValue = httpContext.Request.Query["search[value]"].ToString();
-
-                        var changeWrappers = await _storageService.ChangeWrappersAsync(new SearcRequest
+                        var changeWrappers = await _storageService.ChangeWrappersAsync(new ChangeWrapperRequest
                         {
+                            Guid = null,
                             SearchValue = searchValue,
                             Start = start,
                             Max = max,
@@ -165,7 +166,18 @@ namespace EntityGuardian.Middlewares
                     {
                         var guid = Guid.Parse(httpContext.Request.Query["guid"]);
 
-                        var changes = await _storageService.ChangesAsync(guid);
+                        var changes = await _storageService.ChangesAsync(new ChangesRequest
+                        {
+                            ChangeWrapperGuid = guid,
+                            SearchValue = searchValue,
+                            Start = start,
+                            Max = max,
+                            OrderBy = new Sorting
+                            {
+                                Name = orderName,
+                                OrderType = orderType
+                            }
+                        });
 
                         var json = JsonSerializer.Serialize(changes, new JsonSerializerOptions
                         {

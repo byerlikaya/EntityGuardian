@@ -1,8 +1,8 @@
-﻿namespace EntityGuardian.Entities.Results
+﻿namespace EntityGuardian.Entities.Dtos
 {
-    internal class DataResult<T> : IDataResult<T>
+    public class ResponseData<T>
     {
-        public DataResult(T resultObject, int dataCount)
+        public ResponseData(T resultObject, int dataCount)
         {
             ResultObject = resultObject;
             DataCount = dataCount;
