@@ -38,7 +38,7 @@ namespace Sample.Api
                 configuration.DataSynchronizationTimeout = 5;
                 configuration.StorageType = StorageType.SqlServer;
                 configuration.RoutePrefix = "";
-                configuration.ClearDataOnStartup = true;
+                configuration.ClearDataOnStartup = false;
                 configuration.EntityGuardiaonSchemaName = "Example";
             });
 

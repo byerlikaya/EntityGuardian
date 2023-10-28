@@ -1,5 +1,5 @@
 ﻿using EntityGuardian.Entities;
-using EntityGuardian.Entities.Results;
+using EntityGuardian.Entities.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,9 +12,9 @@ namespace EntityGuardian.Interfaces
 
         Task Synchronization();
 
-        Task<IDataResult<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(SearcRequest searchRequest);
+        Task<ResponseData<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(ChangeWrapperRequest searchRequest);
 
-        Task<IDataResult<IEnumerable<Change>>> ChangesAsync(SearcRequest searchRequest);
+        Task<ResponseData<IEnumerable<Change>>> ChangesAsync(ChangesRequest searchRequest);
 
         Task<Change> ChangeAsync(Guid guid);
     }

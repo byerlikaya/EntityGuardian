@@ -1,10 +1,35 @@
 ﻿$(document).ready(function () {
     processJson();
+
+    highlight();
 });
+
+function highlight() {
+    const firstTable = document.querySelectorAll("#old_data_table td");
+    const secondTable = document.querySelectorAll("#new_data_table td");
+
+    // loop on one of the table if both are of identical structure, else it is pointless
+    for (let i = 0; i < firstTable.length; i++) {
+        if (firstTable[i].textContent !== secondTable[i].textContent) {
+            secondTable[i].classList.add('highlight');// here do what you need to when not equal
+        }
+        // else { /* do what you need to if equal*/ }
+    }
+}
+
 function processJson() {
-    $("#old_data").html(buildTable(getOldJsonVar()));
-    $("#new_data").html(buildTable(getNewJsonVar()));
-    showTree()
+
+    var o = $("#json_old_data").val();
+    if (o != "") {
+        $("#old_data").html(buildTable(getOldJsonVar(),"old_data_table"));
+        showOldTree();
+    }
+
+    var n = $("#json_new_data").val();
+    if (n != "") {
+        $("#new_data").html(buildTable(getNewJsonVar(),"new_data_table"));
+        showNewTree();
+    }     
 }
 
 function getOldJsonVar() {
@@ -29,34 +54,48 @@ function getNewJsonVar() {
             {}
     }
 }
-function showTree() {
+function showOldTree() {  
     var a = document.createElement("ol")
         , e = document.createElement("li")
         , d = "_" + Math.random().toString(36).substr(2, 9);
-    e.innerHTML = "<label for='" + d + "' class='lbl_obj'>&nbsp;</label> <input type='checkbox' checked id='" + d + "' />";
+    e.innerHTML = "<label for='" + d + "' class='lbl_obj'>&nbsp;</label> <input type='checkbox' id='" + d + "' />";
     d = document.createElement("ol");
     e.appendChild(d);
     a.appendChild(e);
-    buildTree(getJsonVar(), 0, d);
-    $("#inner_tree").html(a)
+    buildTree(getOldJsonVar(), 0, d);
+    $("#inner_tree_old").html(a)
 }
-function buildTable(a) {
+
+function showNewTree() {
+    var a = document.createElement("ol")
+        , e = document.createElement("li")
+        , d = "_" + Math.random().toString(36).substr(2, 9);
+    e.innerHTML = "<label for='" + d + "' class='lbl_obj'>&nbsp;</label> <input type='checkbox' id='" + d + "' />";
+    d = document.createElement("ol");
+    e.appendChild(d);
+    a.appendChild(e);
+    buildTree(getNewJsonVar(), 0, d);
+    $("#inner_tree_new").html(a)
+}
+
+function buildTable(a,id) {
     var e = document.createElement("table"), d, b;
     e.className = "table";
+    e.id = id;
     if (isArray(a))
         return buildArray(a);
     for (var c in a)
         "object" != typeof a[c] || isArray(a[c]) ? "object" == typeof a[c] && isArray(a[c]) ? (d = e.insertRow(-1),
             b = d.insertCell(-1),
             b.colSpan = 2,
-            b.innerHTML = encodeText(c) + '<table class="table table-hover">' + $(buildArray(a[c]), !1).html() + "</table>") : (d = e.insertRow(-1),
+            b.innerHTML = encodeText(c) + '<table class="table">' + $(buildArray(a[c]), !1).html() + "</table>") : (d = e.insertRow(-1),
                 b = d.insertCell(-1),
                 b.innerHTML = encodeText(c),
                 d = d.insertCell(-1),
                 d.innerHTML = encodeText(a[c])) : (d = e.insertRow(-1),
                     b = d.insertCell(-1),
                     b.colSpan = 2,
-                    b.innerHTML = encodeText(c) + '<table class="table table-hover">' + $(buildTable(a[c]), !1).html() + "</table>");
+                    b.innerHTML = encodeText(c) + '<table class="table">' + $(buildTable(a[c]), !1).html() + "</table>");
     return e
 }
 function buildArray(a) {
@@ -69,12 +108,12 @@ function buildArray(a) {
         if ("object" != typeof a[f] || isArray(a[f]))
             "object" == typeof a[f] && isArray(a[f]) ? (b = d.insertCell(h),
                 b.colSpan = 2,
-                b.innerHTML = '<table class="table table-hover">' + $(buildArray(a[f]), !1).html() + "</table>",
+                b.innerHTML = '<table class="table">' + $(buildArray(a[f]), !1).html() + "</table>",
                 c = !0) : p || (h += 1,
                     p = !0,
                     b = d.insertCell(h),
                     m.empty = h,
-                    b.innerHTML = "<div class='td_head'>&nbsp;</div>");
+                    b.innerHTML = "<div>&nbsp;</div>");
         else
             for (var k in a[f])
                 l = "-" + k,
@@ -92,7 +131,7 @@ function buildArray(a) {
                 for (h = m.empty,
                     c = 0; c < n; c++)
                     b = d.insertCell(c),
-                        l = c == h ? '<table class="table table-hover">' + $(buildArray(a[f]), !1).html() + "</table>" : " ",
+                        l = c == h ? '<table class="table">' + $(buildArray(a[f]), !1).html() + "</table>" : " ",
                         b.innerHTML = encodeText(l);
             else
                 for (h = m.empty,
@@ -109,7 +148,7 @@ function buildArray(a) {
                     l = "-" + k,
                     h = m[l],
                     b = d.cells[h],
-                    "object" != typeof c[k] || isArray(c[k]) ? "object" == typeof c[k] && isArray(c[k]) ? b.innerHTML = '<table class="table table-hover">' + $(buildArray(c[k]), !1).html() + "</table>" : b.innerHTML = encodeText(c[k]) : b.innerHTML = '<table class="table table-hover">' + $(buildTable(c[k]), !1).html() + "</table>"
+                    "object" != typeof c[k] || isArray(c[k]) ? "object" == typeof c[k] && isArray(c[k]) ? b.innerHTML = '<table class="table">' + $(buildArray(c[k]), !1).html() + "</table>" : b.innerHTML = encodeText(c[k]) : b.innerHTML = '<table class="table">' + $(buildTable(c[k]), !1).html() + "</table>"
         }
     return e
 }
@@ -137,7 +176,7 @@ function addTree(a, e, d) {
     d && (b = "lbl_array");
     var c = "_" + Math.random().toString(36).substr(2, 9);
     d = document.createElement("li");
-    d.innerHTML = "<label for='" + c + "' class='" + b + "'>" + encodeText(a) + "</label> <input type='checkbox' checked id='" + c + "' />";
+    d.innerHTML = "<label for='" + c + "' class='" + b + "'>" + encodeText(a) + "</label> <input type='checkbox' id='" + c + "' />";
     a = document.createElement("ol");
     d.appendChild(a);
     null != e && e.appendChild(d);
@@ -145,7 +184,7 @@ function addTree(a, e, d) {
 }
 function addLeaf(a, e, d) {
     var b = "";
-    isArray(e) || (b = a + ":");
+    isArray(e) || (b = a + " : ");
     b += e[a];
     Math.random().toString(36).substr(2, 9);
     a = document.createElement("li");

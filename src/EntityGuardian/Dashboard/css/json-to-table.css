@@ -1,0 +1,84 @@
+﻿ol.tree {
+    padding: 0 0 0 30px;
+    width: 300px
+}
+
+li {
+    position: relative;
+    margin-left: -15px;
+    list-style: none
+}
+
+    li.file {
+        margin-left: -1px !important
+    }
+
+        li.file a {
+            background: url(leaf.png)0 5px no-repeat;
+            color: #000;
+            padding-left: 12px;
+            text-decoration: none;
+            display: block;          
+        }
+
+            li.file a[href$='.css'], li.file a[href$='.js'], li.file a[href*='.pdf'], li.file a[href*='.html'] {
+                background: url(http://www.thecssninja.com/demo/css_tree/document.png)no-repeat
+            }
+
+    li input {
+        position: absolute;
+        left: 0;
+        margin-left: 0;
+        opacity: 0;
+        z-index: 2;
+        cursor: pointer;
+        height: 1em;
+        width: 1em;
+        top: 0
+    }
+
+        li input + ol {
+            background: url(http://www.thecssninja.com/demo/css_tree/toggle-small-expand.png)40px -3px no-repeat;
+            margin: -20px 0 0 -44px;
+            height: 1em;
+            padding: 1.563em 0 0 80px
+        }
+
+    li label.lbl_array, li label.lbl_obj {
+        display: block;
+        padding-left: 33px;
+        margin-bottom: 2px
+    }
+
+    li input + ol > li {
+        display: none;
+        margin-left: -14px !important;
+        padding-left: 1px
+    }
+
+    li label.lbl_obj {
+        background: url(folder.png)15px 1px no-repeat;
+        cursor: pointer
+    }
+
+    li label.lbl_array {
+        background: url(array.png)15px 1px no-repeat;
+        cursor: pointer
+    }
+
+    li input:checked + ol {
+        background: url(http://www.thecssninja.com/demo/css_tree/toggle-small.png)40px -3px no-repeat;
+        margin: -20px 0 0 -44px;
+        padding: 1.563em 0 0 80px;
+        height: auto
+    }
+
+        li input:checked + ol > li {
+            display: block;
+            margin: 0 0 .125em
+        }
+
+            li input:checked + ol > li:last-child {
+                margin: 0 0 .063em
+            }
+            

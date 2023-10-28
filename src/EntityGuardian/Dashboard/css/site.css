@@ -67,3 +67,9 @@ button.accept-policy {
     white-space: nowrap;
     line-height: 60px;
 }
+
+.highlight {
+    color: #ff0000!important;
+    font-weight:bold!important;
+    background-color:antiquewhite!important;
+}

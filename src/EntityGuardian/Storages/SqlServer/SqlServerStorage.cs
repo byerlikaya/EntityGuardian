@@ -1,5 +1,5 @@
 ﻿using EntityGuardian.Entities;
-using EntityGuardian.Entities.Results;
+using EntityGuardian.Entities.Dtos;
 using EntityGuardian.Interfaces;
 using EntityGuardian.Options;
 using Microsoft.EntityFrameworkCore;
@@ -72,7 +72,7 @@ namespace EntityGuardian.Storages.SqlServer
             }
         }
 
-        public async Task<IDataResult<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(SearcRequest searchRequest)
+        public async Task<ResponseData<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(ChangeWrapperRequest searchRequest)
         {
             var query = _context.ChangeWrapper
                 .Where(searchRequest)
@@ -85,10 +85,10 @@ namespace EntityGuardian.Storages.SqlServer
                 .Take(searchRequest.Max == default ? 10 : searchRequest.Max)
                 .ToListAsync();
 
-            return new DataResult<List<ChangeWrapper>>(result, count);
+            return new ResponseData<IEnumerable<ChangeWrapper>>(result, count);
         }
 
-        public async Task<IDataResult<IEnumerable<Change>>> ChangesAsync(SearcRequest searchRequest)
+        public async Task<ResponseData<IEnumerable<Change>>> ChangesAsync(ChangesRequest searchRequest)
         {
             var query = _context.Change
                 .Where(searchRequest)
@@ -101,7 +101,7 @@ namespace EntityGuardian.Storages.SqlServer
                 .Take(searchRequest.Max == default ? 10 : searchRequest.Max)
                 .ToListAsync();
 
-            return new DataResult<IEnumerable<Change>>(result, count);
+            return new ResponseData<IEnumerable<Change>>(result, count);
         }
 
         public async Task<Change> ChangeAsync(Guid guid)

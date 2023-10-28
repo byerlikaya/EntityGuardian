@@ -1,5 +1,4 @@
-﻿using EntityGuardian.Entities.Results;
-using EntityGuardian.Interfaces;
+﻿using EntityGuardian.Interfaces;
 using EntityGuardian.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,6 +15,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using EntityGuardian.Entities.Dtos;
 
 #if NETSTANDARD2_1
 using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
@@ -141,8 +141,9 @@ namespace EntityGuardian.Middlewares
 
                     if (string.Equals(type, "changewrappers", StringComparison.OrdinalIgnoreCase))
                     {
-                        var changeWrappers = await _storageService.ChangeWrappersAsync(new SearcRequest
+                        var changeWrappers = await _storageService.ChangeWrappersAsync(new ChangeWrapperRequest
                         {
+                            Guid = null,
                             SearchValue = searchValue,
                             Start = start,
                             Max = max,
@@ -165,9 +166,9 @@ namespace EntityGuardian.Middlewares
                     {
                         var guid = Guid.Parse(httpContext.Request.Query["guid"]);
 
-                        var changes = await _storageService.ChangesAsync(new SearcRequest
+                        var changes = await _storageService.ChangesAsync(new ChangesRequest
                         {
-                            Guid = guid,
+                            ChangeWrapperGuid = guid,
                             SearchValue = searchValue,
                             Start = start,
                             Max = max,

@@ -7,7 +7,7 @@
 
   <PropertyGroup>
     <PackageId>EntityGuardian</PackageId>
-    <Version>1.0.0-alpha</Version>
+    <Version>1.0.0-alpha.1</Version>
     <Authors>Barış Yerlikaya</Authors>
     <Company>Barış Yerlikaya</Company>
     <Product>EntityGuardian</Product>
@@ -39,11 +39,6 @@
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.1' ">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <None Remove="Dashboard\js\json-to-table.js" />
-  </ItemGroup>
-  
   
   <ItemGroup>
     <PackageReference Include="Autofac.Extras.DynamicProxy" Version="7.1.0" />
