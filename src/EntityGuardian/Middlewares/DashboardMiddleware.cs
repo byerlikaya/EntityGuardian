@@ -132,15 +132,15 @@ namespace EntityGuardian.Middlewares
                 {
                     var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
 
+                    var start = int.Parse(httpContext.Request.Query["start"]);
+                    var max = int.Parse(httpContext.Request.Query["length"]);
+                    var orderIndex = httpContext.Request.Query["order[0][column]"].ToString();
+                    var orderName = httpContext.Request.Query[$"columns[{orderIndex}][data]"].ToString();
+                    var orderType = httpContext.Request.Query["order[0][dir]"].ToString();
+                    var searchValue = httpContext.Request.Query["search[value]"].ToString();
+
                     if (string.Equals(type, "changewrappers", StringComparison.OrdinalIgnoreCase))
                     {
-                        var start = int.Parse(httpContext.Request.Query["start"]);
-                        var max = int.Parse(httpContext.Request.Query["length"]);
-                        var orderIndex = httpContext.Request.Query["order[0][column]"].ToString();
-                        var orderName = httpContext.Request.Query[$"columns[{orderIndex}][data]"].ToString();
-                        var orderType = httpContext.Request.Query["order[0][dir]"].ToString();
-                        var searchValue = httpContext.Request.Query["search[value]"].ToString();
-
                         var changeWrappers = await _storageService.ChangeWrappersAsync(new SearcRequest
                         {
                             SearchValue = searchValue,
@@ -165,7 +165,18 @@ namespace EntityGuardian.Middlewares
                     {
                         var guid = Guid.Parse(httpContext.Request.Query["guid"]);
 
-                        var changes = await _storageService.ChangesAsync(guid);
+                        var changes = await _storageService.ChangesAsync(new SearcRequest
+                        {
+                            Guid = guid,
+                            SearchValue = searchValue,
+                            Start = start,
+                            Max = max,
+                            OrderBy = new Sorting
+                            {
+                                Name = orderName,
+                                OrderType = orderType
+                            }
+                        });
 
                         var json = JsonSerializer.Serialize(changes, new JsonSerializerOptions
                         {

@@ -18,15 +18,21 @@ namespace Sample.Api.ApplicationSpecific
         {
             var publisher = new Publisher
             {
-                Id = 1,
+                Id = new Random().Next(1, 99999),
                 Name = "Deneme",
                 Books = new List<Book>
                 {
                     new Book
                     {
                         Name = "Kitap 1",
-                        Id = 1,
-                        Price = 100
+                        Id = new Random().Next(1, 99999),
+                        Price = 100,
+                        Author = new Author
+                        {
+                            Name = "Yazar 1",
+                            Id=new Random().Next(1, 99999),
+                            Age = 30
+                        }
                     }
                 }
             };

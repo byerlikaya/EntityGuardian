@@ -40,6 +40,10 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   
+  <ItemGroup>
+    <None Remove="Dashboard\js\json-to-table.js" />
+  </ItemGroup>
+  
   
   <ItemGroup>
     <PackageReference Include="Autofac.Extras.DynamicProxy" Version="7.1.0" />

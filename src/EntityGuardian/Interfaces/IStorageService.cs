@@ -12,9 +12,9 @@ namespace EntityGuardian.Interfaces
 
         Task Synchronization();
 
-        Task<IDataResult<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(SearcRequest searchDto);
+        Task<IDataResult<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(SearcRequest searchRequest);
 
-        Task<IDataResult<IEnumerable<Change>>> ChangesAsync(Guid changeWrapperGuid);
+        Task<IDataResult<IEnumerable<Change>>> ChangesAsync(SearcRequest searchRequest);
 
         Task<Change> ChangeAsync(Guid guid);
     }

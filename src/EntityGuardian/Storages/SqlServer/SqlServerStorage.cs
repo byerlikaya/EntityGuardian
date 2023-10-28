@@ -72,28 +72,36 @@ namespace EntityGuardian.Storages.SqlServer
             }
         }
 
-        public async Task<IDataResult<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(SearcRequest searchDto)
+        public async Task<IDataResult<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(SearcRequest searchRequest)
         {
             var query = _context.ChangeWrapper
-                .Where(searchDto)
-                .OrderBy(searchDto.OrderBy);
+                .Where(searchRequest)
+                .OrderBy(searchRequest.OrderBy);
 
             var count = await query.CountAsync();
 
             var result = await query
-                .Skip(searchDto.Start)
-                .Take(searchDto.Max == default ? 10 : searchDto.Max)
+                .Skip(searchRequest.Start)
+                .Take(searchRequest.Max == default ? 10 : searchRequest.Max)
                 .ToListAsync();
 
             return new DataResult<List<ChangeWrapper>>(result, count);
         }
 
-        public async Task<IDataResult<IEnumerable<Change>>> ChangesAsync(Guid changeWrapperGuid)
+        public async Task<IDataResult<IEnumerable<Change>>> ChangesAsync(SearcRequest searchRequest)
         {
             var query = _context.Change
-                .Where(x => x.ChangeWrapperGuid == changeWrapperGuid);
+                .Where(searchRequest)
+                .OrderBy(searchRequest.OrderBy);
 
-            return new DataResult<IEnumerable<Change>>(await query.ToListAsync(), await query.CountAsync());
+            var count = await query.CountAsync();
+
+            var result = await query
+                .Skip(searchRequest.Start)
+                .Take(searchRequest.Max == default ? 10 : searchRequest.Max)
+                .ToListAsync();
+
+            return new DataResult<IEnumerable<Change>>(result, count);
         }
 
         public async Task<Change> ChangeAsync(Guid guid)

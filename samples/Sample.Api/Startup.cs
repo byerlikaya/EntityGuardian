@@ -38,7 +38,7 @@ namespace Sample.Api
                 configuration.DataSynchronizationTimeout = 5;
                 configuration.StorageType = StorageType.SqlServer;
                 configuration.RoutePrefix = "";
-                configuration.ClearDataOnStartup = false;
+                configuration.ClearDataOnStartup = true;
                 configuration.EntityGuardiaonSchemaName = "Example";
             });
 
@@ -51,10 +51,7 @@ namespace Sample.Api
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api4 v1");
-                });
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api4 v1"));
             }
 
             app.UseEntityGuardian<MemoryDbContext>();

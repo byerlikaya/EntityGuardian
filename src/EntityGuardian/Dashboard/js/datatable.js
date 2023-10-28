@@ -10,9 +10,6 @@
             length: 10,
             url: "data.html?type=changewrappers",
             dataSrc: "resultObject",
-            data: function (request) {
-
-            },
             dataFilter: function (data) {
                 var json = jQuery.parseJSON(data);
                 json.recordsTotal = json.dataCount;
@@ -22,9 +19,15 @@
         },
         columns: [
             {
-                data: "guid",
+                data: "targetName",
                 render: function (data, type, row) {
-                    return row.guid;
+                    return row.targetName;
+                }
+            },
+            {
+                data: "methodName",
+                render: function (data, type, row) {
+                    return row.methodName;
                 }
             },
             {
@@ -39,26 +42,14 @@
                     return row.ipAddress;
                 }
             },
-            {
-                data: "targetName",
-                render: function (data, type, row) {
-                    return row.targetName;
-                }
-            },
-            {
-                data: "methodName",
-                render: function (data, type, row) {
-                    return row.methodName;
-                }
-            },
+
             {
                 data: "transactionDate",
                 render: function (data, type, row) {
                     return row.transactionDate;
                 }
             },
-            {
-                width: "10%",
+            {          
                 searching: false,
                 sorting: false,
                 render: function (data, type, row) {
@@ -83,10 +74,7 @@
             start: 0,
             length: 10,
             url: getUrl(),
-            dataSrc: "resultObject",
-            data: function (request) {
-
-            },
+            dataSrc: "resultObject",        
             dataFilter: function (data) {
                 var json = jQuery.parseJSON(data);
                 json.recordsTotal = json.dataCount;
@@ -96,15 +84,15 @@
         },
         columns: [
             {
-                data: "guid",
+                data: "order",
                 render: function (data, type, row) {
-                    return row.guid;
+                    return row.order;
                 }
             },
             {
-                data: "actionType",
+                data: "transactionType",
                 render: function (data, type, row) {
-                    return row.actionType;
+                    return row.transactionType;
                 }
             },
             {
@@ -120,7 +108,6 @@
                 }
             },
             {
-                width: "10%",
                 searching: false,
                 sorting: false,
                 render: function (data, type, row) {
