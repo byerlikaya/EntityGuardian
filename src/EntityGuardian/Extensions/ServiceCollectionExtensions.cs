@@ -39,7 +39,7 @@ namespace EntityGuardian.Extensions
 
             services.TryAddSingleton<IStorageService, SqlServerStorage>();
 
-            services.TryAddSingleton<IHostedService, DataBackgroundService>();
+            services.AddSingleton<IHostedService, DataBackgroundService>();
 
             ServiceTool.Create(services);
         }
