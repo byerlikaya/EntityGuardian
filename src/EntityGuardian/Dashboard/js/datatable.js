@@ -11,6 +11,13 @@
             length: 10,
             url: "data.html?type=changewrappers",
             dataSrc: "resultObject",
+            "data": function (d) {
+               
+                d.targetName = $("#targetName").val();
+                d.methodName = $("#methodName").val();
+                d.userName = $("#username").val();
+                d.ipAddress = $("#ipaddress").val();
+            },
             dataFilter: function (data) {
                 var json = jQuery.parseJSON(data);
                 json.recordsTotal = json.dataCount;
@@ -78,6 +85,12 @@
             length: 10,
             url: getUrl(),
             dataSrc: "resultObject",
+            "data": function (d) {
+
+                d.order = $("#order").val();
+                d.transactionType = $("#transactionType").val();
+                d.entityName = $("#entityName").val();
+            },
             dataFilter: function (data) {
                 var json = jQuery.parseJSON(data);
                 json.recordsTotal = json.dataCount;
@@ -114,7 +127,7 @@
                 searching: false,
                 sorting: false,
                 render: function (data, type, row) {
-                    return "<a href='change-detail.html?guid=" + row.guid + "'class='btn btn-warning btn-icon-split btn-sm'><span class='icon'><i class='fas fa-arrow-right'></i></span><span class='text'>Details</span></a>";
+                    return "<a href='change-detail.html?guid=" + row.guid + "&change-wrapper-guid=" + row.changeWrapperGuid +"'class='btn btn-warning btn-icon-split btn-sm'><span class='icon'><i class='fas fa-arrow-right'></i></span><span class='text'>Details</span></a>";
                 }
             }
         ]

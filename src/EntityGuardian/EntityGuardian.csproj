@@ -41,6 +41,10 @@
   </ItemGroup>
   
   <ItemGroup>
+    <None Remove="Dashboard\js\filter.js" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <PackageReference Include="Autofac.Extras.DynamicProxy" Version="7.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
     <PackageReference Include="SmartOrderBy" Version="1.0.0.1" />
