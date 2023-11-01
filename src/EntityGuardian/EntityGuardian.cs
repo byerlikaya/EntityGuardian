@@ -43,7 +43,7 @@ namespace EntityGuardian
 
         public void Intercept(IInvocation invocation)
         {
-            var user = _httpContextAccessor.HttpContext!.User;
+            var user = _httpContextAccessor.HttpContext?.User;
 
             _changeWrapper = new ChangeWrapper
             {
@@ -52,7 +52,7 @@ namespace EntityGuardian
                 MethodName = invocation.Method.Name,
                 IpAddress = _ipAddress,
                 TransactionDate = DateTime.UtcNow,
-                Username = user.Identity?.Name ?? "undefined",
+                Username = user?.Identity?.Name ?? "undefined",
                 Changes = new List<Change>()
             };
 
