@@ -1,7 +1,4 @@
-﻿using SmartOrderBy.Dtos;
-using SmartWhere.Interfaces;
-
-namespace EntityGuardian.Entities.Dtos
+﻿namespace EntityGuardian.Entities.Dtos
 {
     public class BaseRequest : IWhereClause
     {

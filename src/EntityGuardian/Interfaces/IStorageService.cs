@@ -1,10 +1,4 @@
-﻿using EntityGuardian.Entities;
-using EntityGuardian.Entities.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace EntityGuardian.Interfaces
+﻿namespace EntityGuardian.Interfaces
 {
     public interface IStorageService
     {

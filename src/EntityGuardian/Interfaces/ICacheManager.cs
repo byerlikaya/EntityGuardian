@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace EntityGuardian.Interfaces
+﻿namespace EntityGuardian.Interfaces
 {
     internal interface ICacheManager
     {

@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-
-namespace EntityGuardian.Entities
+﻿namespace EntityGuardian.Entities
 {
     public class Change
     {

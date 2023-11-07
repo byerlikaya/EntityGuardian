@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-
-namespace EntityGuardian.Entities
+﻿namespace EntityGuardian.Entities
 {
     public class ChangeWrapper
     {

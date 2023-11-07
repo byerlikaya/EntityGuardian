@@ -1,20 +1,6 @@
-﻿using Castle.DynamicProxy;
-using EntityGuardian.Entities;
-using EntityGuardian.Enums;
-using EntityGuardian.Interfaces;
-using EntityGuardian.Utilities;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
-
-namespace EntityGuardian
+﻿namespace EntityGuardian
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Assembly)]
+    [AttributeUsage(AttributeTargets.Method)]
     public class EntityGuardian : Attribute, IInterceptor
     {
         private ChangeWrapper _changeWrapper;

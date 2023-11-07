@@ -1,12 +1,4 @@
-﻿using EntityGuardian.Interfaces;
-using Microsoft.Extensions.Caching.Memory;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
-
-namespace EntityGuardian.Utilities
+﻿namespace EntityGuardian.Utilities
 {
     internal class CacheManager : ICacheManager
     {

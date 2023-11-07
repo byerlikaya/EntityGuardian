@@ -1,8 +1,4 @@
-﻿using SmartWhere.Attributes;
-using SmartWhere.Enums;
-using System;
-
-namespace EntityGuardian.Entities.Dtos
+﻿namespace EntityGuardian.Entities.Dtos
 {
     public class ChangesRequest : BaseRequest
     {

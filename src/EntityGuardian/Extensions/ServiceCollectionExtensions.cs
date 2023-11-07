@@ -1,16 +1,4 @@
-﻿using EntityGuardian.BackgroundServices;
-using EntityGuardian.Interfaces;
-using EntityGuardian.Options;
-using EntityGuardian.Storages;
-using EntityGuardian.Storages.SqlServer;
-using EntityGuardian.Utilities;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
-using System;
-
-namespace EntityGuardian.Extensions
+﻿namespace EntityGuardian.Extensions
 {
     public static class ServiceCollectionExtensions
     {

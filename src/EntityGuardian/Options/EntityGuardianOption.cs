@@ -1,6 +1,4 @@
-﻿using EntityGuardian.Enums;
-
-namespace EntityGuardian.Options
+﻿namespace EntityGuardian.Options
 {
     public class EntityGuardianOption
     {

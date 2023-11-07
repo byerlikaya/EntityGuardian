@@ -1,9 +1,4 @@
-﻿using EntityGuardian.Entities;
-using EntityGuardian.Options;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-
-namespace EntityGuardian.Storages
+﻿namespace EntityGuardian.Storages
 {
     public class EntityGuardianDbContext : DbContext
     {

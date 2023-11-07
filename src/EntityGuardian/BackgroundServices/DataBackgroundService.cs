@@ -1,13 +1,4 @@
-﻿using EntityGuardian.Interfaces;
-using EntityGuardian.Options;
-using EntityGuardian.Utilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace EntityGuardian.BackgroundServices
+﻿namespace EntityGuardian.BackgroundServices
 {
     public class DataBackgroundService : BackgroundService
     {

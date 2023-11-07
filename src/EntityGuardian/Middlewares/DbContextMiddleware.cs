@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-
-namespace EntityGuardian.Middlewares
+﻿namespace EntityGuardian.Middlewares
 {
     public class DbContextMiddleware<TContext>
         where TContext : DbContext

@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-
-namespace EntityGuardian.Utilities
+﻿namespace EntityGuardian.Utilities
 {
     internal static class ServiceTool
     {

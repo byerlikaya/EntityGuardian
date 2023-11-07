@@ -1,27 +1,4 @@
-﻿using EntityGuardian.Entities.Dtos;
-using EntityGuardian.Interfaces;
-using EntityGuardian.Options;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Logging;
-using SmartOrderBy.Dtos;
-using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
-#if NETSTANDARD2_1
-using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
-#endif
-
-namespace EntityGuardian.Middlewares
+﻿namespace EntityGuardian.Middlewares
 {
     public class DashboardMiddleware
     {

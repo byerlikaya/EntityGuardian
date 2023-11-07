@@ -1,9 +1,4 @@
-﻿using Castle.DynamicProxy;
-using System;
-using System.Linq;
-using System.Reflection;
-
-namespace EntityGuardian.DependencyResolvers
+﻿namespace EntityGuardian.DependencyResolvers
 {
     public class InterceptorSelector : IInterceptorSelector
     {

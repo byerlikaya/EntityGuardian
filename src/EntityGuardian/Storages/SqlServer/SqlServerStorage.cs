@@ -1,19 +1,4 @@
-﻿using EntityGuardian.Entities;
-using EntityGuardian.Entities.Dtos;
-using EntityGuardian.Interfaces;
-using EntityGuardian.Options;
-using Microsoft.EntityFrameworkCore;
-using SmartOrderBy;
-using SmartWhere;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Transactions;
-
-namespace EntityGuardian.Storages.SqlServer
+﻿namespace EntityGuardian.Storages.SqlServer
 {
     internal class SqlServerStorage : IStorageService
     {

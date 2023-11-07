@@ -1,8 +1,4 @@
-﻿using EntityGuardian.Middlewares;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
-
-namespace EntityGuardian.Extensions
+﻿namespace EntityGuardian.Extensions
 {
     public static class ApplicationBuilderExtensions
     {

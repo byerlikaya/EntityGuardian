@@ -1,9 +1,4 @@
-﻿using Autofac;
-using Autofac.Extras.DynamicProxy;
-using Castle.DynamicProxy;
-using System.Reflection;
-
-namespace EntityGuardian.DependencyResolvers
+﻿namespace EntityGuardian.DependencyResolvers
 {
     public class EntityGuardianBusinessModule : Autofac.Module
     {
