@@ -1,9 +1,8 @@
-﻿namespace EntityGuardian.Enums
+﻿namespace EntityGuardian.Enums;
+
+internal enum TransactionType
 {
-    internal enum TransactionType
-    {
-        INSERT,
-        UPDATE,
-        DELETE
-    }
+    INSERT,
+    UPDATE,
+    DELETE
 }

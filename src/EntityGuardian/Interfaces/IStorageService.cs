@@ -1,15 +1,14 @@
-﻿namespace EntityGuardian.Interfaces
+﻿namespace EntityGuardian.Interfaces;
+
+public interface IStorageService
 {
-    public interface IStorageService
-    {
-        void CreateDatabaseTables();
+    void CreateDatabaseTables();
 
-        Task Synchronization();
+    Task Synchronization();
 
-        Task<ResponseData<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(ChangeWrapperRequest searchRequest);
+    Task<ResponseData<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(ChangeWrapperRequest searchRequest);
 
-        Task<ResponseData<IEnumerable<Change>>> ChangesAsync(ChangesRequest searchRequest);
+    Task<ResponseData<IEnumerable<Change>>> ChangesAsync(ChangesRequest searchRequest);
 
-        Task<Change> ChangeAsync(Guid guid);
-    }
+    Task<Change> ChangeAsync(Guid guid);
 }

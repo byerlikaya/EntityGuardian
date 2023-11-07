@@ -1,35 +1,34 @@
-﻿namespace EntityGuardian.Extensions
+﻿namespace EntityGuardian.Extensions;
+
+public static class ServiceCollectionExtensions
 {
-    public static class ServiceCollectionExtensions
+    public static void AddEntityGuardian(this IServiceCollection services,
+        Action<EntityGuardianOption> configuration)
     {
-        public static void AddEntityGuardian(this IServiceCollection services,
-            Action<EntityGuardianOption> configuration)
+        if (services == null) throw new ArgumentNullException(nameof(services));
+        if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+
+        services.TryAddSingleton(_ =>
         {
-            if (services == null) throw new ArgumentNullException(nameof(services));
-            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+            var configurationInstance = new EntityGuardianOption();
 
-            services.TryAddSingleton(_ =>
-            {
-                var configurationInstance = new EntityGuardianOption();
+            configuration(configurationInstance);
 
-                configuration(configurationInstance);
+            return configurationInstance;
+        });
 
-                return configurationInstance;
-            });
+        services.AddDbContext<EntityGuardianDbContext>();
 
-            services.AddDbContext<EntityGuardianDbContext>();
+        services.AddMemoryCache();
 
-            services.AddMemoryCache();
+        services.TryAddSingleton<ICacheManager, CacheManager>();
 
-            services.TryAddSingleton<ICacheManager, CacheManager>();
+        services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.TryAddSingleton<IStorageService, SqlServerStorage>();
 
-            services.TryAddSingleton<IStorageService, SqlServerStorage>();
+        services.AddSingleton<IHostedService, DataBackgroundService>();
 
-            services.AddSingleton<IHostedService, DataBackgroundService>();
-
-            ServiceTool.Create(services);
-        }
+        ServiceTool.Create(services);
     }
 }
