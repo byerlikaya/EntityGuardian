@@ -1,6 +1,4 @@
-﻿using Autofac;
-using EntityGuardian.DependencyResolvers;
-using EntityGuardian.Enums;
+﻿using EntityGuardian.Enums;
 using EntityGuardian.Extensions;
 using Microsoft.OpenApi.Models;
 using Sample.Api.ApplicationSpecific;
@@ -69,12 +67,6 @@ namespace Sample.Api
                 endpoints.MapControllers();
             });
 
-        }
-
-        public void ConfigureContainer(ContainerBuilder builder)
-        {
-            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            builder.RegisterModule(new EntityGuardianBusinessModule(assembly));
         }
     }
 }

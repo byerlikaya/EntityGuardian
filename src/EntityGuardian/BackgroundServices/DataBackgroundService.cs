@@ -3,9 +3,15 @@
 public class DataBackgroundService : BackgroundService
 {
 
-    private readonly EntityGuardianOption _configuration = ServiceTool.ServiceProvider.GetService<EntityGuardianOption>();
+    private readonly EntityGuardianOption _configuration;
     private DateTime _nextRunTime = DateTime.UtcNow;
-    private readonly IStorageService _storageService = ServiceTool.ServiceProvider.GetService<IStorageService>();
+    private readonly IStorageService _storageService;
+
+    public DataBackgroundService(EntityGuardianOption configuration, IStorageService storageService)
+    {
+        _configuration = configuration;
+        _storageService = storageService;
+    }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {

@@ -1,24 +1,31 @@
 ﻿namespace EntityGuardian;
 
-[AttributeUsage(AttributeTargets.Method)]
-public class EntityGuardian : Attribute, IInterceptor
+public class EntityGuardianInterceptor : IInterceptor
 {
     private ChangeWrapper _changeWrapper;
-    private readonly DbContext _dbContext;
+    private DbContext _dbContext;
     private readonly string _ipAddress;
     private readonly ICacheManager _cacheManager;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public EntityGuardian()
+    public EntityGuardianInterceptor(
+        IHttpContextAccessor httpContextAccessor,
+        ICacheManager cacheManager)
     {
-        _httpContextAccessor = ServiceTool.ServiceProvider.GetService<IHttpContextAccessor>();
+        _httpContextAccessor = httpContextAccessor
+                               ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        _cacheManager = cacheManager
+                        ?? throw new ArgumentNullException(nameof(cacheManager));
 
         _ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
 
+        SetDbContext();
+    }
+
+    private void SetDbContext()
+    {
         if (_httpContextAccessor.HttpContext?.Items["DbContext"] is not DbContext dbContext)
             return;
-
-        _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
 
         dbContext.SavedChanges += DbContext_SavedChanges;
         dbContext.SavingChanges += DbContext_SavingChanges;
@@ -29,6 +36,9 @@ public class EntityGuardian : Attribute, IInterceptor
 
     public void Intercept(IInvocation invocation)
     {
+        if (_dbContext is null)
+            SetDbContext();
+
         var user = _httpContextAccessor.HttpContext?.User;
 
         _changeWrapper = new ChangeWrapper
@@ -71,7 +81,7 @@ public class EntityGuardian : Attribute, IInterceptor
                     {
                         Guid = Guid.NewGuid(),
                         ChangeWrapperGuid = _changeWrapper.Guid,
-                        TransactionType = TransactionType.INSERT.ToString(),
+                        TransactionType = TransactionType.Insert.ToString(),
                         NewData = JsonSerializer.Serialize(entityEntry.Entity),
                         OldData = string.Empty,
                         TransactionDate = DateTime.UtcNow,
@@ -96,7 +106,7 @@ public class EntityGuardian : Attribute, IInterceptor
                         {
                             Guid = Guid.NewGuid(),
                             ChangeWrapperGuid = _changeWrapper.Guid,
-                            TransactionType = TransactionType.UPDATE.ToString(),
+                            TransactionType = TransactionType.Update.ToString(),
                             NewData = JsonSerializer.Serialize(currentEntity),
                             OldData = JsonSerializer.Serialize(dbEntity),
                             EntityName = entityEntry.Entity.ToString(),
@@ -112,7 +122,7 @@ public class EntityGuardian : Attribute, IInterceptor
                     {
                         Guid = Guid.NewGuid(),
                         ChangeWrapperGuid = _changeWrapper.Guid,
-                        TransactionType = TransactionType.DELETE.ToString(),
+                        TransactionType = TransactionType.Delete.ToString(),
                         NewData = string.Empty,
                         OldData = JsonSerializer.Serialize(entityEntry.Entity),
                         TransactionDate = DateTime.UtcNow,
@@ -138,5 +148,4 @@ public class EntityGuardian : Attribute, IInterceptor
     {
 
     }
-
 }

@@ -94,7 +94,7 @@ internal class SqlServerStorage : IStorageService
 
     private static string GetSqlScript(string schema)
     {
-        var script = GetStringResource(typeof(EntityGuardian).GetTypeInfo().Assembly,
+        var script = GetStringResource(typeof(EntityGuardianAttribute).GetTypeInfo().Assembly,
             "EntityGuardian.Storages.SqlServer.Install.sql");
 
         script = script.Replace("$(EntityGuardiaonSchemaName)", schema);

@@ -3,8 +3,8 @@
 public class EntityGuardianDbContext : DbContext
 {
     protected IConfiguration Configuration { get; }
-    private readonly EntityGuardianOption _entityGuardianOption;
 
+    private readonly EntityGuardianOption _entityGuardianOption;
 
     public EntityGuardianDbContext(DbContextOptions<EntityGuardianDbContext> options, IConfiguration configuration, EntityGuardianOption option, EntityGuardianOption entityGuardianOption)
         : base(options)

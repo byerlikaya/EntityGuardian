@@ -1,6 +1,6 @@
 ﻿namespace EntityGuardian.Interfaces;
 
-internal interface ICacheManager
+public interface ICacheManager
 {
     List<(string key, T data)> GetList<T>(string mainKey);
 

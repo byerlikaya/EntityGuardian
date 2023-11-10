@@ -6,7 +6,6 @@ public static class ApplicationBuilderExtensions
         where TContext : DbContext
     {
         app.UseMiddleware<DbContextMiddleware<TContext>>();
-
         app.UseMiddleware<DashboardMiddleware>();
     }
 }

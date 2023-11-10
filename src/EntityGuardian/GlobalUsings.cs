@@ -1,7 +1,5 @@
 // Global using directives
 
-global using Autofac;
-global using Autofac.Extras.DynamicProxy;
 global using Castle.DynamicProxy;
 global using EntityGuardian.BackgroundServices;
 global using EntityGuardian.Entities;
@@ -18,12 +16,16 @@ global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.StaticFiles;
 global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Caching.Memory;
+global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.FileProviders;
 global using Microsoft.Extensions.Hosting;
 global using Microsoft.Extensions.Logging;
+global using SmartOrderBy;
 global using SmartOrderBy.Dtos;
+global using SmartWhere;
 global using SmartWhere.Attributes;
 global using SmartWhere.Enums;
 global using SmartWhere.Interfaces;
@@ -40,10 +42,6 @@ global using System.Text.RegularExpressions;
 global using System.Threading;
 global using System.Threading.Tasks;
 global using System.Transactions;
-global using Microsoft.Extensions.Caching.Memory;
-global using Microsoft.Extensions.Configuration;
-global using SmartOrderBy;
-global using SmartWhere;
 #if NETSTANDARD2_1
 global using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 #endif
