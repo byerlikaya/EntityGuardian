@@ -2,7 +2,8 @@
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddEntityGuardian(this IServiceCollection services,
+    public static IServiceCollection AddEntityGuardian(
+        this IServiceCollection services,
         Action<EntityGuardianOption> configuration)
     {
 
@@ -13,13 +14,13 @@ public static class ServiceCollectionExtensions
 
         services.AddDbContext<EntityGuardianDbContext>();
 
-        services.TryAddSingleton<ICacheManager, CacheManager>();
+        services.AddSingleton<ICacheManager, CacheManager>();
 
-        services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-        services.TryAddSingleton<ProxyGenerator>();
+        services.AddSingleton<ProxyGenerator>();
 
-        services.TryAddSingleton(_ =>
+        services.AddSingleton(_ =>
         {
             var configurationInstance = new EntityGuardianOption();
 
@@ -28,30 +29,13 @@ public static class ServiceCollectionExtensions
             return configurationInstance;
         });
 
-        services.TryAddSingleton<IStorageService, SqlServerStorage>();
+        services.AddSingleton<IStorageService, SqlServerStorage>();
 
-        services.TryAddScoped<IInterceptor, EntityGuardianInterceptor>();
+        services.AddScoped<EntityGuardianInterceptor>();
 
         services.AddHostedService<DataBackgroundService>();
 
-        var assembly = Assembly.GetEntryAssembly();
-
-        var serviceProvider = services.BuildServiceProvider();
-
-        var count = services.Count;
-
-        for (var i = 0; i < count; i++)
-        {
-            if (services[i].ServiceType.Assembly != assembly) continue;
-            if (!services[i].ServiceType.IsInterface) continue;
-
-            var proxyGenerator = serviceProvider.GetRequiredService<ProxyGenerator>();
-            var actual = serviceProvider.GetRequiredService(services[i].ServiceType);
-            var interceptors = serviceProvider.GetServices<IInterceptor>().ToArray();
-            var createdInterface = proxyGenerator.CreateInterfaceProxyWithTarget(services[i].ServiceType, actual, interceptors);
-            var descriptor = new ServiceDescriptor(services[i].ServiceType, _ => createdInterface, ServiceLifetime.Scoped);
-            services.Replace(descriptor);
-        }
+        ServiceTool.Build(services);
 
         return services;
     }

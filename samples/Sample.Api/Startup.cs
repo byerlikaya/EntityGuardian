@@ -1,4 +1,5 @@
-﻿using EntityGuardian.Enums;
+﻿using EntityGuardian;
+using EntityGuardian.Enums;
 using EntityGuardian.Extensions;
 using Microsoft.OpenApi.Models;
 using Sample.Api.ApplicationSpecific;
@@ -27,7 +28,7 @@ namespace Sample.Api
 
             services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(Startup).Assembly));
 
-            services.AddDbContext<MemoryDbContext>();
+            services.AddDbContext<MemoryDbContext>((serviceProvider, options) => options.AddInterceptors(serviceProvider.GetRequiredService<EntityGuardianInterceptor>()));
 
             services.AddTransient<ITestRepository, TestRepository>();
 
@@ -52,7 +53,7 @@ namespace Sample.Api
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api4 v1"));
             }
 
-            app.UseEntityGuardian<MemoryDbContext>();
+            app.UseEntityGuardian();
 
             app.UseHttpsRedirection();
 

@@ -1,5 +1,4 @@
-﻿using EntityGuardian;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Sample.Api.ApplicationSpecific.Contexts;
 using Sample.DomainObjects.Entity;
 
@@ -14,7 +13,6 @@ namespace Sample.Api.ApplicationSpecific
             _context = context;
         }
 
-        [EntityGuardian]
         public async Task SavePublisher()
         {
             var publisher = new Publisher
@@ -43,7 +41,6 @@ namespace Sample.Api.ApplicationSpecific
             await _context.SaveChangesAsync();
         }
 
-        [EntityGuardian]
         public async Task UpdatePublisher()
         {
             var publisher = await _context.Publishers
@@ -57,7 +54,7 @@ namespace Sample.Api.ApplicationSpecific
             await _context.SaveChangesAsync();
         }
 
-        [EntityGuardian]
+
         public async Task DeletePublisher()
         {
             var publisher = await _context.Publishers

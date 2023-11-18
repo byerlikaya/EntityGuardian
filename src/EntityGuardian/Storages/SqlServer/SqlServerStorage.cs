@@ -6,15 +6,11 @@ internal class SqlServerStorage : IStorageService
     private readonly EntityGuardianDbContext _context;
     private readonly EntityGuardianOption _options;
 
-    public SqlServerStorage(
-        EntityGuardianDbContext context,
-        ICacheManager cacheManager,
-        EntityGuardianOption options)
+    public SqlServerStorage(ICacheManager cacheManager, EntityGuardianOption options)
     {
-        _context = context;
+        _context = ServiceTool.ServiceProvider.GetService<EntityGuardianDbContext>();
         _cacheManager = cacheManager;
         _options = options;
-
         CreateDatabaseTables();
     }
 
@@ -94,7 +90,7 @@ internal class SqlServerStorage : IStorageService
 
     private static string GetSqlScript(string schema)
     {
-        var script = GetStringResource(typeof(EntityGuardianAttribute).GetTypeInfo().Assembly,
+        var script = GetStringResource(typeof(SqlServerStorage).GetTypeInfo().Assembly,
             "EntityGuardian.Storages.SqlServer.Install.sql");
 
         script = script.Replace("$(EntityGuardiaonSchemaName)", schema);

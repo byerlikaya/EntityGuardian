@@ -24,7 +24,6 @@ public class DashboardMiddleware
         var httpMethod = httpContext.Request.Method;
         var path = httpContext.Request.Path.Value;
 
-
         if (httpMethod == "GET" && Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RoutePrefix)}/?$", RegexOptions.IgnoreCase))
         {
             var relativeIndexUrl = string.IsNullOrEmpty(path) || path.EndsWith("/")
