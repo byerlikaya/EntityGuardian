@@ -1,7 +1,6 @@
-﻿namespace EntityGuardian.Enums
+﻿namespace EntityGuardian.Enums;
+
+public enum StorageType
 {
-    public enum StorageType
-    {
-        SqlServer = 1
-    }
+    SqlServer = 1
 }

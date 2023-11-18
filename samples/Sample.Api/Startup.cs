@@ -1,5 +1,4 @@
-﻿using Autofac;
-using EntityGuardian.DependencyResolvers;
+﻿using EntityGuardian;
 using EntityGuardian.Enums;
 using EntityGuardian.Extensions;
 using Microsoft.OpenApi.Models;
@@ -29,7 +28,7 @@ namespace Sample.Api
 
             services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(Startup).Assembly));
 
-            services.AddDbContext<MemoryDbContext>();
+            services.AddDbContext<MemoryDbContext>((serviceProvider, options) => options.AddInterceptors(serviceProvider.GetRequiredService<EntityGuardianInterceptor>()));
 
             services.AddTransient<ITestRepository, TestRepository>();
 
@@ -54,7 +53,7 @@ namespace Sample.Api
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api4 v1"));
             }
 
-            app.UseEntityGuardian<MemoryDbContext>();
+            app.UseEntityGuardian();
 
             app.UseHttpsRedirection();
 
@@ -69,12 +68,6 @@ namespace Sample.Api
                 endpoints.MapControllers();
             });
 
-        }
-
-        public void ConfigureContainer(ContainerBuilder builder)
-        {
-            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            builder.RegisterModule(new EntityGuardianBusinessModule(assembly));
         }
     }
 }

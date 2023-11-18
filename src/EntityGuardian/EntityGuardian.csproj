@@ -7,7 +7,7 @@
 
   <PropertyGroup>
     <PackageId>EntityGuardian</PackageId>
-    <Version>1.0.0-alpha.2</Version>
+    <Version>1.0.0-alpha.3</Version>
     <Authors>Barış Yerlikaya</Authors>
     <Company>Barış Yerlikaya</Company>
     <Product>EntityGuardian</Product>
@@ -45,13 +45,14 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Autofac.Extras.DynamicProxy" Version="7.1.0" />
+    <PackageReference Include="Castle.Core" Version="5.1.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="7.0.13" />
     <PackageReference Include="SmartOrderBy" Version="1.0.0.1" />
     <PackageReference Include="SmartWhere" Version="2.1.1.2" />
     <PackageReference Include="System.Text.Json" Version="7.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="7.0.13" />
+  
   </ItemGroup>
 
 </Project>

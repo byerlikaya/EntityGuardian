@@ -1,21 +1,16 @@
-﻿using SmartWhere.Attributes;
-using SmartWhere.Enums;
-using System;
+﻿namespace EntityGuardian.Entities.Dtos;
 
-namespace EntityGuardian.Entities.Dtos
+public class ChangesRequest : BaseRequest
 {
-    public class ChangesRequest : BaseRequest
-    {
-        [WhereClause]
-        public Guid ChangeWrapperGuid { get; set; }
+    [WhereClause]
+    public Guid ChangeWrapperGuid { get; set; }
 
-        [WhereClause]
-        public int? Order { get; set; }
+    [WhereClause]
+    public int? Order { get; set; }
 
-        [TextualWhereClause(StringMethod.Contains)]
-        public string TransactionType { get; set; }
+    [TextualWhereClause(StringMethod.Contains)]
+    public string TransactionType { get; set; }
 
-        [TextualWhereClause(StringMethod.Contains)]
-        public string EntityName { get; set; }
-    }
+    [TextualWhereClause(StringMethod.Contains)]
+    public string EntityName { get; set; }
 }

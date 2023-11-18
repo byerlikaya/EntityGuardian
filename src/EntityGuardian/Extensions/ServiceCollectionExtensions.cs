@@ -1,47 +1,42 @@
-﻿using EntityGuardian.BackgroundServices;
-using EntityGuardian.Interfaces;
-using EntityGuardian.Options;
-using EntityGuardian.Storages;
-using EntityGuardian.Storages.SqlServer;
-using EntityGuardian.Utilities;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
-using System;
+﻿namespace EntityGuardian.Extensions;
 
-namespace EntityGuardian.Extensions
+public static class ServiceCollectionExtensions
 {
-    public static class ServiceCollectionExtensions
+    public static IServiceCollection AddEntityGuardian(
+        this IServiceCollection services,
+        Action<EntityGuardianOption> configuration)
     {
-        public static void AddEntityGuardian(this IServiceCollection services,
-            Action<EntityGuardianOption> configuration)
+
+        if (services == null) throw new ArgumentNullException(nameof(services));
+        if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+
+        services.AddMemoryCache();
+
+        services.AddDbContext<EntityGuardianDbContext>();
+
+        services.AddSingleton<ICacheManager, CacheManager>();
+
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+        services.AddSingleton<ProxyGenerator>();
+
+        services.AddSingleton(_ =>
         {
-            if (services == null) throw new ArgumentNullException(nameof(services));
-            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+            var configurationInstance = new EntityGuardianOption();
 
-            services.TryAddSingleton(_ =>
-            {
-                var configurationInstance = new EntityGuardianOption();
+            configuration(configurationInstance);
 
-                configuration(configurationInstance);
+            return configurationInstance;
+        });
 
-                return configurationInstance;
-            });
+        services.AddSingleton<IStorageService, SqlServerStorage>();
 
-            services.AddDbContext<EntityGuardianDbContext>();
+        services.AddScoped<EntityGuardianInterceptor>();
 
-            services.AddMemoryCache();
+        services.AddHostedService<DataBackgroundService>();
 
-            services.TryAddSingleton<ICacheManager, CacheManager>();
+        ServiceTool.Build(services);
 
-            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-            services.TryAddSingleton<IStorageService, SqlServerStorage>();
-
-            services.AddSingleton<IHostedService, DataBackgroundService>();
-
-            ServiceTool.Create(services);
-        }
+        return services;
     }
 }

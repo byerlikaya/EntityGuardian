@@ -1,15 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿namespace EntityGuardian.Utilities;
 
-namespace EntityGuardian.Utilities
+internal static class ServiceTool
 {
-    internal static class ServiceTool
-    {
-        public static IServiceProvider ServiceProvider { get; set; }
-
-        public static void Create(IServiceCollection services)
-        {
-            ServiceProvider = services.BuildServiceProvider();
-        }
-    }
+    public static IServiceProvider ServiceProvider { get; set; }
+    public static void Build(IServiceCollection services) => ServiceProvider = services.BuildServiceProvider();
 }
