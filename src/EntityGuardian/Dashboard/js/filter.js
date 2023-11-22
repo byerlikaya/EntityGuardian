@@ -1,10 +1,9 @@
 ﻿$(document).ready(function () {
 
-    $("#targetName").keyup(function () {
+    $("#mainEntity").keyup(function () {
         $('#entity-guardian-table').DataTable().ajax.reload();
     });
-
-    $("#methodName").keyup(function () {
+    $("#transactionCount").keyup(function () {
         $('#entity-guardian-table').DataTable().ajax.reload();
     });
 

@@ -13,8 +13,8 @@
             dataSrc: "resultObject",
             "data": function (d) {
                
-                d.targetName = $("#targetName").val();
-                d.methodName = $("#methodName").val();
+                d.mainEntity = $("#mainEntity").val();
+                d.transactionCount = $("#transactionCount").val();
                 d.userName = $("#username").val();
                 d.ipAddress = $("#ipaddress").val();
             },
@@ -27,17 +27,11 @@
         },
         columns: [
             {
-                data: "targetName",
+                data: "mainEntity",
                 render: function (data, type, row) {
-                    return row.targetName;
+                    return row.mainEntity;
                 }
-            },
-            {
-                data: "methodName",
-                render: function (data, type, row) {
-                    return row.methodName;
-                }
-            },
+            },           
             {
                 data: "username",
                 render: function (data, type, row) {
@@ -50,7 +44,12 @@
                     return row.ipAddress;
                 }
             },
-
+            {
+                data: "transactionCount",
+                render: function (data, type, row) {
+                    return row.transactionCount;
+                }
+            },
             {
                 data: "transactionDate",
                 render: function (data, type, row) {
@@ -87,7 +86,7 @@
             dataSrc: "resultObject",
             "data": function (d) {
 
-                d.order = $("#order").val();
+                d.queue = $("#queue").val();
                 d.transactionType = $("#transactionType").val();
                 d.entityName = $("#entityName").val();
             },
@@ -100,9 +99,9 @@
         },
         columns: [
             {
-                data: "order",
+                data: "rank",
                 render: function (data, type, row) {
-                    return row.order;
+                    return row.rank;
                 }
             },
             {
