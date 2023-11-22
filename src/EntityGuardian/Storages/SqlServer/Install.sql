@@ -19,12 +19,12 @@ BEGIN
     (
         [Guid] [uniqueidentifier] NOT NULL,
         [ChangeWrapperGuid] [uniqueidentifier] NOT NULL,
-        [Order] [int] NULL,
-        [TransactionType] [nvarchar](500) NULL,
-        [EntityName] [nvarchar](500) NULL,
+        [Rank] [int] NOT NULL,
+        [TransactionType] [nvarchar](50) NOT NULL,
+        [EntityName] [nvarchar](500) NOT NULL,
         [OldData] [text] NULL,
         [NewData] [text] NULL,
-        [TransactionDate] [datetime] NULL,
+        [TransactionDate] [datetime] NOT NULL,
         CONSTRAINT [PK_Change]
             PRIMARY KEY CLUSTERED ([Guid] ASC)
             WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON,
@@ -46,11 +46,11 @@ BEGIN
     CREATE TABLE [$(EntityGuardiaonSchemaName)].[ChangeWrapper]
     (
         [Guid] [uniqueidentifier] NOT NULL,
-        [Username] [nvarchar](50) NULL,
-        [IpAddress] [nvarchar](50) NULL,
-        [TargetName] [nvarchar](500) NULL,
-        [MethodName] [nvarchar](500) NULL,
-        [TransactionDate] [datetime] NULL,
+        [Username] [nvarchar](250) NOT NULL,
+        [IpAddress] [nvarchar](50) NOT NULL,
+        [MainEntity] [nvarchar](500) NOT NULL,
+        [TransactionCount] [int] NOT NULL,
+        [TransactionDate] [datetime] NOT NULL,
         CONSTRAINT [PK_ChangeWrapper]
             PRIMARY KEY CLUSTERED ([Guid] ASC)
             WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON,

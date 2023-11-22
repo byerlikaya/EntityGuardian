@@ -119,8 +119,8 @@ public class DashboardMiddleware
 
                 if (string.Equals(type, "changewrappers", StringComparison.OrdinalIgnoreCase))
                 {
-                    var targetName = httpContext.Request.Query["targetName"].ToString();
-                    var methodName = httpContext.Request.Query["methodName"].ToString();
+                    var mainEntity = httpContext.Request.Query["mainEntity"].ToString();
+                    var transactionCount = httpContext.Request.Query["transactionCount"].ToString();
                     var username = httpContext.Request.Query["username"].ToString();
                     var ipAddress = httpContext.Request.Query["ipAddress"].ToString();
 
@@ -133,9 +133,9 @@ public class DashboardMiddleware
                             Name = orderName,
                             OrderType = orderType
                         },
-                        MethodName = methodName,
+                        MainEntity = mainEntity,
                         IpAddress = ipAddress,
-                        TargetName = targetName,
+                        TransactionCount = string.IsNullOrEmpty(transactionCount) ? null : int.Parse(transactionCount),
                         Username = username
                     });
 
@@ -150,7 +150,7 @@ public class DashboardMiddleware
                 else if (string.Equals(type, "changes", StringComparison.OrdinalIgnoreCase))
                 {
                     var guid = Guid.Parse(httpContext.Request.Query["guid"]);
-                    var order = int.TryParse(httpContext.Request.Query["order"], out var o) ? o : (int?)null;
+                    var rank = int.TryParse(httpContext.Request.Query["rank"], out var o) ? o : (int?)null;
                     var transactionType = httpContext.Request.Query["transactionType"].ToString();
                     var entityName = httpContext.Request.Query["entityName"].ToString();
 
@@ -165,7 +165,7 @@ public class DashboardMiddleware
                             OrderType = orderType
                         },
                         EntityName = entityName,
-                        Order = order,
+                        Rank = rank,
                         TransactionType = transactionType
                     });
 
