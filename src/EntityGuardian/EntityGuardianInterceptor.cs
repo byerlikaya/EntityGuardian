@@ -24,8 +24,6 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
         _changeWrapper = new ChangeWrapper
         {
             Guid = Guid.NewGuid(),
-            //TargetName = invocation.TargetType.FullName,
-            //MethodName = invocation.Method.Name,
             IpAddress = connection?.RemoteIpAddress?.ToString(),
             TransactionDate = DateTime.UtcNow,
             Username = user?.Identity?.Name ?? "undefined",
@@ -55,24 +53,26 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
         if (dbContext is null)
             return;
 
-        var index = 1;
+        var rank = 0;
 
         foreach (var entityEntry in dbContext.BringTheEntriesToBeAffected())
         {
+            rank++;
             switch (entityEntry.State)
             {
                 case EntityState.Added:
-                    AddedChanges(index, entityEntry);
+                    AddedChanges(rank, entityEntry);
                     break;
                 case EntityState.Modified:
-                    ModifiedChanges(index, entityEntry);
+                    ModifiedChanges(rank, entityEntry);
                     break;
                 case EntityState.Deleted:
-                    DeletedChanges(index, entityEntry);
+                    DeletedChanges(rank, entityEntry);
                     break;
             }
-            index++;
         }
+
+        _changeWrapper.TransactionCount = rank;
 
         AddCache(dbContext.ContextId.InstanceId);
     }
@@ -87,8 +87,11 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
         _cacheManager.Add(key, _changeWrapper);
     }
 
-    private void AddedChanges(int index, EntityEntry entityEntry)
+    private void AddedChanges(int rank, EntityEntry entityEntry)
     {
+        if (rank == 1)
+            _changeWrapper.MainEntity = entityEntry.Entity.ToString();
+
         _changeWrapper.Changes.Add(new Change
         {
             Guid = Guid.NewGuid(),
@@ -98,11 +101,11 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
             OldData = string.Empty,
             EntityName = entityEntry.Entity.ToString(),
             TransactionDate = DateTime.UtcNow,
-            Order = index
+            Rank = rank
         });
     }
 
-    private void ModifiedChanges(int index, EntityEntry entityEntry)
+    private void ModifiedChanges(int rank, EntityEntry entityEntry)
     {
         var dbValues = entityEntry.GetDatabaseValues();
 
@@ -113,6 +116,9 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
         var currentValues = entityEntry.CurrentValues;
         var currentEntity = currentValues.ToObject();
 
+        if (rank == 1)
+            _changeWrapper.MainEntity = entityEntry.Entity.ToString();
+
         _changeWrapper.Changes.Add(new Change
         {
             Guid = Guid.NewGuid(),
@@ -122,12 +128,15 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
             OldData = JsonSerializer.Serialize(dbEntity),
             EntityName = entityEntry.Entity.ToString(),
             TransactionDate = DateTime.UtcNow,
-            Order = index
+            Rank = rank
         });
     }
 
-    private void DeletedChanges(int index, EntityEntry entityEntry)
+    private void DeletedChanges(int rank, EntityEntry entityEntry)
     {
+        if (rank == 1)
+            _changeWrapper.MainEntity = entityEntry.Entity.ToString();
+
         _changeWrapper.Changes.Add(new Change
         {
             Guid = Guid.NewGuid(),
@@ -137,7 +146,7 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
             OldData = JsonSerializer.Serialize(entityEntry.Entity),
             TransactionDate = DateTime.UtcNow,
             EntityName = entityEntry.Entity.ToString(),
-            Order = index
+            Rank = rank
         });
     }
 }
