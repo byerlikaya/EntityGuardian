@@ -26,7 +26,7 @@ public class EntityGuardianDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema(_entityGuardianOption.EntityGuardiaonSchemaName);
+        modelBuilder.HasDefaultSchema(_entityGuardianOption.EntityGuardianSchemaName);
         base.OnModelCreating(modelBuilder);
     }
 

@@ -3,7 +3,15 @@
 public class EntityGuardianOption
 {
 
-    public string RoutePrefix { get; set; } = "entity-guardian";
+    private string _routePrefix;
+
+    public string RoutePrefix
+    {
+        get => string.IsNullOrEmpty(_routePrefix)
+            ? "entity-guardian"
+            : _routePrefix;
+        set => _routePrefix = value;
+    }
 
     public bool ClearDataOnStartup { get; set; }
 
@@ -14,5 +22,13 @@ public class EntityGuardianOption
 
     public StorageType StorageType { get; set; }
 
-    public string EntityGuardiaonSchemaName { get; set; } = "EntityGuardian";
+    private string _entityGuardianSchemaName;
+
+    public string EntityGuardianSchemaName
+    {
+        get => string.IsNullOrEmpty(_entityGuardianSchemaName)
+                ? "EntityGuardian"
+                : _entityGuardianSchemaName;
+        set => _entityGuardianSchemaName = value;
+    }
 }

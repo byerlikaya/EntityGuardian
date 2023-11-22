@@ -16,13 +16,13 @@ internal class SqlServerStorage : IStorageService
 
     public void CreateDatabaseTables()
     {
-        _context.Database.ExecuteSqlRaw(GetSqlScript(_options.EntityGuardiaonSchemaName));
+        _context.Database.ExecuteSqlRaw(GetSqlScript(_options.EntityGuardianSchemaName));
 
         if (!_options.ClearDataOnStartup)
             return;
 
-        _context.Database.ExecuteSqlRaw($"DELETE FROM {SchemaName(_options.EntityGuardiaonSchemaName)}.Change");
-        _context.Database.ExecuteSqlRaw($"DELETE FROM {SchemaName(_options.EntityGuardiaonSchemaName)}.ChangeWrapper");
+        _context.Database.ExecuteSqlRaw($"DELETE FROM {SchemaName(_options.EntityGuardianSchemaName)}.Change");
+        _context.Database.ExecuteSqlRaw($"DELETE FROM {SchemaName(_options.EntityGuardianSchemaName)}.ChangeWrapper");
     }
 
     public async Task Synchronization()
