@@ -18,14 +18,10 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-        services.AddSingleton<ProxyGenerator>();
-
         services.AddSingleton(_ =>
         {
             var configurationInstance = new EntityGuardianOption();
-
             configuration(configurationInstance);
-
             return configurationInstance;
         });
 
