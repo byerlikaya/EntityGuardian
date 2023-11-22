@@ -19,7 +19,6 @@ namespace Sample.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -38,7 +37,7 @@ namespace Sample.Api
                 configuration.StorageType = StorageType.SqlServer;
                 configuration.RoutePrefix = "";
                 configuration.ClearDataOnStartup = false;
-                configuration.EntityGuardiaonSchemaName = "Example";
+                configuration.EntityGuardianSchemaName = "";
             });
 
         }
