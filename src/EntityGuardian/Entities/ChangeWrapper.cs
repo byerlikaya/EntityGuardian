@@ -9,9 +9,9 @@ public class ChangeWrapper
 
     public string IpAddress { get; set; }
 
-    public string TargetName { get; set; }
+    public string MainEntity { get; set; }
 
-    public string MethodName { get; set; }
+    public int TransactionCount { get; set; }
 
     public DateTime TransactionDate { get; set; }
 
