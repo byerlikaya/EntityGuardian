@@ -3,10 +3,10 @@
 public class ChangeWrapperRequest : BaseRequest
 {
     [TextualWhereClause(StringMethod.Contains)]
-    public string TargetName { get; set; }
+    public string MainEntity { get; set; }
 
-    [TextualWhereClause(StringMethod.Contains)]
-    public string MethodName { get; set; }
+    [WhereClause]
+    public int? TransactionCount { get; set; }
 
     [TextualWhereClause(StringMethod.Contains)]
     public string Username { get; set; }
