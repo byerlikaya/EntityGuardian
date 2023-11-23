@@ -5,10 +5,33 @@ internal class CacheManager : ICacheManager
     private readonly IMemoryCache _memoryCache;
     public CacheManager(IMemoryCache memoryCache) => _memoryCache = memoryCache;
 
-    public List<(string key, T data)> GetList<T>(string mainKey)
+    public List<(string key, T data)> GetList<T>(string mainKey) =>
+        ValuesOfMatchingKeys(mainKey)
+            .Select(key => (key, _memoryCache.Get<T>(key)))
+            .ToList();
+
+    public void AddCache(string key, object data) => _memoryCache.Set(key, data);
+
+    public bool IsExists(string key) => _memoryCache.TryGetValue(key, out _);
+
+    public void Remove(string key) => _memoryCache.Remove(key);
+
+    private IEnumerable<string> ValuesOfMatchingKeys(string mainKey) =>
+        ValuesOfKeys()
+            .Where(d => RegexIsMatch(mainKey, d))
+            .Select(d => d)
+            .ToList();
+
+    private IEnumerable<string> ValuesOfKeys() =>
+        from object item in GetEntriesCollection()
+        let methodInfo = item.GetType().GetProperty("Key")
+        select methodInfo?.GetValue(item)
+        into value
+        select value?.ToString();
+
+    private IEnumerable GetEntriesCollection()
     {
-        var coherentState = typeof(MemoryCache)
-            .GetField("_coherentState", BindingFlags.NonPublic | BindingFlags.Instance);
+        var coherentState = typeof(MemoryCache).GetField("_coherentState", BindingFlags.NonPublic | BindingFlags.Instance);
 
         var coherentStateValue = coherentState?.GetValue(_memoryCache);
 
@@ -16,45 +39,10 @@ internal class CacheManager : ICacheManager
             .GetType()
             .GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance);
 
-
-        var cacheEntriesCollection = cacheEntriesCollectionDefinition?
-            .GetValue(coherentStateValue) as ICollection;
-
-        var cacheCollectionValues = new List<string>();
-
-        if (cacheEntriesCollection != null)
-        {
-            foreach (var item in cacheEntriesCollection)
-            {
-                var methodInfo = item.GetType().GetProperty("Key");
-
-                var val = methodInfo?.GetValue(item);
-
-                cacheCollectionValues.Add(val?.ToString());
-            }
-        }
-
-        var regex = new Regex(mainKey, RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        var keysToRemove = cacheCollectionValues
-            .Where(d => regex.IsMatch(d))
-            .Select(d => d)
-            .ToList();
-
-        List<(string key, T data)> list = new();
-
-        foreach (var key in keysToRemove)
-        {
-            list.Add((key, _memoryCache.Get<T>(key)));
-        }
-
-        return list;
+        return cacheEntriesCollectionDefinition?.GetValue(coherentStateValue) as IEnumerable ?? Enumerable.Empty<object>();
     }
 
-    public void Add(string key, object data) => _memoryCache.Set(key, data);
+    private static bool RegexIsMatch(string mainKey, string key) => new Regex(mainKey, GetRegexOptions()).IsMatch(key);
 
-    public bool IsExists(string key) => _memoryCache.TryGetValue(key, out _);
-
-    public void Remove(string key) => _memoryCache.Remove(key);
-
+    private static RegexOptions GetRegexOptions() => RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase;
 }

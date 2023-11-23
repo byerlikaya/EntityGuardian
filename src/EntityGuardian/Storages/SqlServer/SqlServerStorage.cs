@@ -27,18 +27,12 @@ internal class SqlServerStorage : IStorageService
 
     public async Task Synchronization()
     {
-        var memoryData = _cacheManager.GetList<ChangeWrapper>(nameof(ChangeWrapper));
-
-        if (memoryData.Any())
+        if (MemoryDataControl(out var memoryData))
         {
             using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
-                var changeWrappers = memoryData
-                    .Select(x => x.data)
-                    .ToList();
-
-                await _context.ChangeWrapper.AddRangeAsync(changeWrappers);
+                await _context.ChangeWrapper.AddRangeAsync(memoryData.Select(x => x.data).ToList());
 
                 await _context.SaveChangesAsync();
 
@@ -53,17 +47,22 @@ internal class SqlServerStorage : IStorageService
         }
     }
 
+    private bool MemoryDataControl(out List<(string key, ChangeWrapper data)> memoryData)
+    {
+        memoryData = _cacheManager.GetList<ChangeWrapper>(nameof(ChangeWrapper));
+        return memoryData.Any();
+    }
+
     public async Task<ResponseData<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(ChangeWrapperRequest searchRequest)
     {
-        var query = _context.ChangeWrapper
-            .Where(searchRequest)
-            .OrderBy(searchRequest.OrderBy);
+        var query = _context.ChangeWrapper.Where(searchRequest);
 
         var count = await query.CountAsync();
 
         var result = await query
+            .OrderBy(searchRequest.OrderBy)
             .Skip(searchRequest.Start)
-            .Take(searchRequest.Max == default ? 10 : searchRequest.Max)
+            .Take(searchRequest.Max is default(int) ? 10 : searchRequest.Max)
             .ToListAsync();
 
         return new ResponseData<IEnumerable<ChangeWrapper>>(result, count);
@@ -71,13 +70,12 @@ internal class SqlServerStorage : IStorageService
 
     public async Task<ResponseData<IEnumerable<Change>>> ChangesAsync(ChangesRequest searchRequest)
     {
-        var query = _context.Change
-            .Where(searchRequest)
-            .OrderBy(searchRequest.OrderBy);
+        var query = _context.Change.Where(searchRequest);
 
         var count = await query.CountAsync();
 
         var result = await query
+            .OrderBy(searchRequest.OrderBy)
             .Skip(searchRequest.Start)
             .Take(searchRequest.Max == default ? 10 : searchRequest.Max)
             .ToListAsync();
@@ -85,31 +83,22 @@ internal class SqlServerStorage : IStorageService
         return new ResponseData<IEnumerable<Change>>(result, count);
     }
 
-    public async Task<Change> ChangeAsync(Guid guid)
-        => await _context.Change.FirstOrDefaultAsync(x => x.Guid == guid);
+    public async Task<Change> ChangeAsync(Guid guid) =>
+        await _context.Change.FirstOrDefaultAsync(x => x.Guid == guid);
 
-    private static string GetSqlScript(string schema)
-    {
-        var script = GetStringResource(typeof(SqlServerStorage).GetTypeInfo().Assembly,
-            "EntityGuardian.Storages.SqlServer.Install.sql");
-
-        script = script.Replace("$(EntityGuardiaonSchemaName)", schema);
-
-        return script;
-    }
+    private static string GetSqlScript(string schema) =>
+        GetStringResource(typeof(SqlServerStorage).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql")
+            .Replace("$(EntityGuardiaonSchemaName)", schema);
 
     private static string GetStringResource(Assembly assembly, string resourceName)
     {
-        using var stream = assembly.GetManifestResourceStream(resourceName)
-                           ?? throw new InvalidOperationException($"Requested resource `{resourceName}` was not found in the assembly `{assembly}`.");
+        using var stream = assembly.GetManifestResourceStream(resourceName) ?? throw new InvalidOperationException($"Requested resource `{resourceName}` was not found in the assembly `{assembly}`.");
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }
 
-    private static string SchemaName(string schema)
-    {
-        return !string.IsNullOrWhiteSpace(schema)
-            ? schema
-            : "EntityGuardian";
-    }
+    private static string SchemaName(string schema) =>
+        string.IsNullOrWhiteSpace(schema)
+            ? "EntityGuardian"
+            : schema;
 }

@@ -1,20 +1,24 @@
 ﻿namespace EntityGuardian.Storages;
 
-public class EntityGuardianDbContext : DbContext
+internal class EntityGuardianDbContext : DbContext
 {
-    protected IConfiguration Configuration { get; }
+    private IConfiguration Configuration { get; }
 
     private readonly EntityGuardianOption _entityGuardianOption;
 
-    public EntityGuardianDbContext(DbContextOptions<EntityGuardianDbContext> options, IConfiguration configuration, EntityGuardianOption option, EntityGuardianOption entityGuardianOption)
-        : base(options)
+    protected EntityGuardianDbContext(
+        DbContextOptions<EntityGuardianDbContext> options,
+        IConfiguration configuration,
+        EntityGuardianOption entityGuardianOption) : base(options)
     {
         Configuration = configuration;
         _entityGuardianOption = entityGuardianOption;
     }
 
-    protected EntityGuardianDbContext(DbContextOptions options, IConfiguration configuration, EntityGuardianOption entityGuardianOption)
-        : base(options)
+    protected EntityGuardianDbContext(
+        DbContextOptions options,
+        IConfiguration configuration,
+        EntityGuardianOption entityGuardianOption) : base(options)
     {
         Configuration = configuration;
         _entityGuardianOption = entityGuardianOption;

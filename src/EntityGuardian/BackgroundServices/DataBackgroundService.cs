@@ -27,17 +27,17 @@ public class DataBackgroundService : BackgroundService
 
     private int GetDelayTime()
     {
-        var delayTime = (_nextRunTime - DateTime.UtcNow).TotalMilliseconds;
+        var delayTime = DelayTime();
 
-        if (!(delayTime < 0))
+        if (delayTime > 0)
             return (int)delayTime;
 
         _nextRunTime = GetNextDate();
 
-        delayTime = (_nextRunTime - DateTime.UtcNow).TotalMilliseconds;
-
-        return (int)delayTime;
+        return (int)DelayTime();
     }
 
     private DateTime GetNextDate() => DateTime.UtcNow.AddSeconds(_configuration.DataSynchronizationTimeout);
+
+    private double DelayTime() => (_nextRunTime - DateTime.UtcNow).TotalMilliseconds;
 }

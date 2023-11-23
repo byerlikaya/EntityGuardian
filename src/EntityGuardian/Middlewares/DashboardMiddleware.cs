@@ -2,76 +2,108 @@
 
 public class DashboardMiddleware
 {
-    private readonly EntityGuardianOption _options;
-    private const string EmbeddedFileNamespace = "EntityGuardian.Dashboard";
-    private readonly StaticFileMiddleware _staticFileMiddleware;
     private readonly IStorageService _storageService;
+    private readonly IWebHostEnvironment _webHostEnvironment;
+    private readonly ILoggerFactory _loggerFactory;
+
+    private readonly EntityGuardianOption _options;
+    private readonly StaticFileMiddleware _staticFileMiddleware;
+
 
     public DashboardMiddleware(
-        RequestDelegate next,
-        IWebHostEnvironment hostingEnv,
+        IStorageService storageService,
+        IWebHostEnvironment webHostEnvironment,
         ILoggerFactory loggerFactory,
         EntityGuardianOption options,
-        IStorageService storageService)
+        RequestDelegate next
+       )
     {
-        _options = options;
         _storageService = storageService;
-        _staticFileMiddleware = CreateStaticFileMiddleware(next, hostingEnv, loggerFactory, options);
+        _webHostEnvironment = webHostEnvironment;
+        _loggerFactory = loggerFactory;
+        _options = options;
+        _staticFileMiddleware = CreateStaticFileMiddleware(next);
     }
 
     public async Task Invoke(HttpContext httpContext)
     {
-        var httpMethod = httpContext.Request.Method;
-        var path = httpContext.Request.Path.Value;
+        var httpRequest = httpContext.Request;
+        var httpMethod = httpRequest.Method;
+        var path = httpRequest.Path;
 
-        if (httpMethod == "GET" && Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RoutePrefix)}/?$", RegexOptions.IgnoreCase))
-        {
-            var relativeIndexUrl = string.IsNullOrEmpty(path) || path.EndsWith("/")
-                ? "index.html"
-                : $"{path.Split('/').Last()}/index.html";
-
-            RespondWithRedirect(httpContext.Response, relativeIndexUrl);
-            return;
-        }
-
-        if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape(_options.RoutePrefix)}/?index.html$", RegexOptions.IgnoreCase))
-        {
-            await RespondWithIndexHtml(httpContext.Response);
-            return;
-        }
-
-        if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape(_options.RoutePrefix)}/?data.html$", RegexOptions.IgnoreCase))
-        {
-            await RespondWithDataHtml(httpContext);
-            return;
-        }
-
-        if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape(_options.RoutePrefix)}/?change-wrapper-detail.html$", RegexOptions.IgnoreCase))
-        {
-            await RespondWithChangeWrapperDetailHtml(httpContext);
-            return;
-        }
-
-        if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape(_options.RoutePrefix)}/?change-detail.html$", RegexOptions.IgnoreCase))
-        {
-            await RespondWithChangeDetailHtml(httpContext);
-            return;
-        }
+        if (httpMethod is "GET" && path.Value is not null)
+            if (await TryHandleSpecialPath(httpContext, path))
+                return;
 
         await _staticFileMiddleware.Invoke(httpContext);
     }
 
-    private static void RespondWithRedirect(HttpResponse response, string location)
+    private async Task<bool> TryHandleSpecialPath(HttpContext httpContext, PathString path)
     {
-        response.StatusCode = 301;
-        response.Headers["Location"] = location;
+        if (path.IsRedirect(_options.RoutePrefix))
+        {
+            RespondWithRedirect(httpContext.Response, path);
+        }
+        else if (path.IsIndexHtml(_options.RoutePrefix))
+        {
+            await RespondWithIndexHtml(httpContext);
+        }
+        else if (path.IsDataHtml(_options.RoutePrefix))
+        {
+            await RespondWithDataHtml(httpContext);
+        }
+        else if (path.IsChangeWrapperDetail(_options.RoutePrefix))
+        {
+            await RespondWithChangeWrapperDetailHtml(httpContext);
+        }
+        else if (path.IsChangeDetail(_options.RoutePrefix))
+        {
+            await RespondWithChangeDetailHtml(httpContext);
+        }
+        else
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void SetResponseContent(HttpContext httpContext, ResponseContentType responseContentType)
+    {
+        httpContext.Response.StatusCode = HttpStatusCode.OK.GetHashCode();
+        httpContext.Response.ContentType = responseContentType == ResponseContentType.Html
+            ? "text/html;charset=utf-8"
+            : "application/json; charset=utf-8";
+    }
+
+    private static void RespondWithRedirect(HttpResponse response, PathString pathString)
+    {
+        var value = pathString.Value;
+
+        var relativeIndexUrl = string.IsNullOrWhiteSpace(value) || value.EndsWith('/')
+            ? "index.html"
+            : $"{value.Split('/').Last()}/index.html";
+
+        response.StatusCode = HttpStatusCode.MovedPermanently.GetHashCode();
+        response.Headers["Location"] = relativeIndexUrl;
+    }
+
+    private async Task RespondWithIndexHtml(HttpContext httpContext)
+    {
+        SetResponseContent(httpContext, ResponseContentType.Html);
+
+        await using var stream = IndexStream();
+        using var reader = new StreamReader(stream);
+        var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
+        await httpContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
     }
 
     private async Task RespondWithChangeWrapperDetailHtml(HttpContext httpContext)
     {
-        httpContext.Response.StatusCode = 200;
-        httpContext.Response.ContentType = "text/html;charset=utf-8";
-        var guid = httpContext.Request.Query["guid"].ToString();
+        SetResponseContent(httpContext, ResponseContentType.Html);
+
+        var guid = httpContext.Request.Query["guid"];
+
         await using var stream = ChangeWrapperDetailStream();
         using var reader = new StreamReader(stream);
         var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
@@ -82,10 +114,11 @@ public class DashboardMiddleware
 
     private async Task RespondWithChangeDetailHtml(HttpContext httpContext)
     {
-        httpContext.Response.StatusCode = 200;
-        httpContext.Response.ContentType = "text/html;charset=utf-8";
-        var guid = httpContext.Request.Query["guid"].ToString();
-        var changeWrapperGuid = httpContext.Request.Query["change-wrapper-guid"].ToString();
+        SetResponseContent(httpContext, ResponseContentType.Html);
+
+        var guid = httpContext.Request.Query["guid"];
+        var changeWrapperGuid = httpContext.Request.Query["change-wrapper-guid"];
+
         await using var stream = ChangeDetailStream();
         using var reader = new StreamReader(stream);
         var change = await _storageService.ChangeAsync(Guid.Parse(guid));
@@ -100,99 +133,121 @@ public class DashboardMiddleware
 
     private async Task RespondWithDataHtml(HttpContext httpContext)
     {
-        httpContext.Response.StatusCode = 200;
-        httpContext.Response.ContentType = "application/json; charset=utf-8";
+        SetResponseContent(httpContext, ResponseContentType.Json);
 
-        var type = httpContext.Request.Query["type"].ToString();
+        var type = httpContext.Request.Query["type"];
 
-        using (var stream = DataStream())
-        {
-            using (var reader = new StreamReader(stream))
-            {
-                var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
-
-                var start = int.Parse(httpContext.Request.Query["start"]);
-                var max = int.Parse(httpContext.Request.Query["length"]);
-                var orderIndex = httpContext.Request.Query["order[0][column]"].ToString();
-                var orderName = httpContext.Request.Query[$"columns[{orderIndex}][data]"].ToString();
-                var orderType = httpContext.Request.Query["order[0][dir]"].ToString();
-
-                if (string.Equals(type, "changewrappers", StringComparison.OrdinalIgnoreCase))
-                {
-                    var mainEntity = httpContext.Request.Query["mainEntity"].ToString();
-                    var transactionCount = httpContext.Request.Query["transactionCount"].ToString();
-                    var username = httpContext.Request.Query["username"].ToString();
-                    var ipAddress = httpContext.Request.Query["ipAddress"].ToString();
-
-                    var changeWrappers = await _storageService.ChangeWrappersAsync(new ChangeWrapperRequest
-                    {
-                        Start = start,
-                        Max = max,
-                        OrderBy = new Sorting
-                        {
-                            Name = orderName,
-                            OrderType = orderType
-                        },
-                        MainEntity = mainEntity,
-                        IpAddress = ipAddress,
-                        TransactionCount = string.IsNullOrEmpty(transactionCount) ? null : int.Parse(transactionCount),
-                        Username = username
-                    });
-
-                    var json = JsonSerializer.Serialize(changeWrappers, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true,
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
-
-                    htmlBuilder.Replace("#entity-guardian-data", json);
-                }
-                else if (string.Equals(type, "changes", StringComparison.OrdinalIgnoreCase))
-                {
-                    var guid = Guid.Parse(httpContext.Request.Query["guid"]);
-                    var rank = int.TryParse(httpContext.Request.Query["rank"], out var o) ? o : (int?)null;
-                    var transactionType = httpContext.Request.Query["transactionType"].ToString();
-                    var entityName = httpContext.Request.Query["entityName"].ToString();
-
-                    var changes = await _storageService.ChangesAsync(new ChangesRequest
-                    {
-                        ChangeWrapperGuid = guid,
-                        Start = start,
-                        Max = max,
-                        OrderBy = new Sorting
-                        {
-                            Name = orderName,
-                            OrderType = orderType
-                        },
-                        EntityName = entityName,
-                        Rank = rank,
-                        TransactionType = transactionType
-                    });
-
-                    var json = JsonSerializer.Serialize(changes, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true,
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
-
-                    htmlBuilder.Replace("#entity-guardian-data", json);
-                }
-
-
-                await httpContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
-            }
-        }
-    }
-
-    private async Task RespondWithIndexHtml(HttpResponse response)
-    {
-        response.StatusCode = 200;
-        response.ContentType = "text/html;charset=utf-8";
-
-        await using var stream = IndexStream();
+        await using var stream = DataStream();
         using var reader = new StreamReader(stream);
         var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
-        await response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+
+        var json = "";
+
+        if (string.Equals(type, "changewrappers", StringComparison.OrdinalIgnoreCase))
+        {
+            json = await ChangeWrappersJson(httpContext);
+        }
+        else if (string.Equals(type, "changes", StringComparison.OrdinalIgnoreCase))
+        {
+            json = await ChangesJson(httpContext);
+        }
+
+        htmlBuilder.Replace("#entity-guardian-data", json);
+
+        await httpContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+    }
+
+    private async Task<string> ChangeWrappersJson(HttpContext httpContext)
+    {
+        var changeWrappers = await _storageService.ChangeWrappersAsync(CreateChangeWrapperRequest(httpContext));
+
+        return JsonSerializer.Serialize(changeWrappers, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
+    }
+
+    private async Task<string> ChangesJson(HttpContext httpContext)
+    {
+        var changes = await _storageService.ChangesAsync(CreateChangeRequest(httpContext));
+
+        return JsonSerializer.Serialize(changes, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
+    }
+
+    private static BaseRequest CreateBaseRequest(HttpContext httpContext)
+    {
+        var start = int.Parse(httpContext.Request.Query["start"]);
+        var max = int.Parse(httpContext.Request.Query["length"]);
+        var orderIndex = httpContext.Request.Query["order[0][column]"];
+        var orderName = httpContext.Request.Query[$"columns[{orderIndex}][data]"];
+        var orderType = httpContext.Request.Query["order[0][dir]"];
+
+        return new BaseRequest
+        {
+            Start = start,
+            Max = max,
+            OrderBy = new Sorting
+            {
+                Name = orderName,
+                OrderType = orderType
+            }
+        };
+    }
+
+    private static ChangeWrapperRequest CreateChangeWrapperRequest(HttpContext httpContext)
+    {
+        var baseRequest = CreateBaseRequest(httpContext);
+
+        var mainEntity = httpContext.Request.Query["mainEntity"];
+        var transactionCount = int.TryParse(httpContext.Request.Query["transactionCount"], out var count) ? count : (int?)null;
+        var username = httpContext.Request.Query["username"];
+        var ipAddress = httpContext.Request.Query["ipAddress"];
+
+        return new ChangeWrapperRequest
+        {
+            Start = baseRequest.Start,
+            Max = baseRequest.Max,
+            OrderBy = new Sorting
+            {
+                Name = baseRequest.OrderBy.Name,
+                OrderType = baseRequest.OrderBy.OrderType
+            },
+            MainEntity = mainEntity,
+            IpAddress = ipAddress,
+            TransactionCount = transactionCount,
+            Username = username
+        };
+    }
+
+    private static ChangesRequest CreateChangeRequest(HttpContext httpContext)
+    {
+        var baseRequest = CreateBaseRequest(httpContext);
+
+        var guid = Guid.Parse(httpContext.Request.Query["guid"]);
+        var rank = int.TryParse(httpContext.Request.Query["rank"], out var rankValue) ? rankValue : (int?)null;
+
+        var transactionType = httpContext.Request.Query["transactionType"];
+        var entityName = httpContext.Request.Query["entityName"];
+
+        return new ChangesRequest
+        {
+            ChangeWrapperGuid = guid,
+            Start = baseRequest.Start,
+            Max = baseRequest.Max,
+            OrderBy = new Sorting
+            {
+                Name = baseRequest.OrderBy.Name,
+                OrderType = baseRequest.OrderBy.OrderType
+            },
+            EntityName = entityName,
+            Rank = rank,
+            TransactionType = transactionType
+        };
     }
 
     private Func<Stream> IndexStream { get; } = ()
@@ -219,18 +274,16 @@ public class DashboardMiddleware
             .Assembly
             .GetManifestResourceStream("EntityGuardian.Dashboard.html.change-detail.html");
 
-    private static StaticFileMiddleware CreateStaticFileMiddleware(RequestDelegate next,
-        IWebHostEnvironment hostingEnv,
-        ILoggerFactory loggerFactory, EntityGuardianOption options)
+    private StaticFileMiddleware CreateStaticFileMiddleware(RequestDelegate next)
     {
         var staticFileOptions = new StaticFileOptions
         {
-            RequestPath = string.IsNullOrEmpty(options.RoutePrefix)
+            RequestPath = string.IsNullOrEmpty(_options.RoutePrefix)
                 ? string.Empty
-                : $"/{options.RoutePrefix}",
-            FileProvider = new EmbeddedFileProvider(typeof(DashboardMiddleware).GetTypeInfo().Assembly, EmbeddedFileNamespace),
+                : $"/{_options.RoutePrefix}",
+            FileProvider = new EmbeddedFileProvider(typeof(DashboardMiddleware).GetTypeInfo().Assembly, "EntityGuardian.Dashboard"),
         };
 
-        return new StaticFileMiddleware(next, hostingEnv, Microsoft.Extensions.Options.Options.Create(staticFileOptions), loggerFactory);
+        return new StaticFileMiddleware(next, _webHostEnvironment, Microsoft.Extensions.Options.Options.Create(staticFileOptions), _loggerFactory);
     }
 }

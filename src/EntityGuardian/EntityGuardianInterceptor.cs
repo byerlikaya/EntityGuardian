@@ -1,8 +1,4 @@
-﻿using EntityGuardian.Extensions;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-
-namespace EntityGuardian;
+﻿namespace EntityGuardian;
 
 public class EntityGuardianInterceptor : SaveChangesInterceptor
 {
@@ -13,13 +9,13 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
         IHttpContextAccessor httpContextAccessor,
         ICacheManager cacheManager)
     {
-        var httpContextAccessor1 = httpContextAccessor
-                                   ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        _cacheManager = cacheManager
-                        ?? throw new ArgumentNullException(nameof(cacheManager));
+        _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
 
-        var user = httpContextAccessor1.HttpContext?.User;
-        var connection = httpContextAccessor1.HttpContext?.Connection;
+        if (httpContextAccessor is null)
+            throw new ArgumentNullException(nameof(httpContextAccessor));
+
+        var user = httpContextAccessor.HttpContext?.User;
+        var connection = httpContextAccessor.HttpContext?.Connection;
 
         _changeWrapper = new ChangeWrapper
         {
@@ -50,9 +46,6 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
 
     private void ApplyChanges(DbContext dbContext)
     {
-        if (dbContext is null)
-            return;
-
         var rank = 0;
 
         foreach (var entityEntry in dbContext.BringTheEntriesToBeAffected())
@@ -69,84 +62,97 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
                 case EntityState.Deleted:
                     DeletedChanges(rank, entityEntry);
                     break;
+                case EntityState.Detached:
+                case EntityState.Unchanged:
+                default:
+                    SetMainEntity(rank, entityEntry);
+                    break;
             }
+        }
+
+        AddCache(rank, dbContext.ContextId.InstanceId);
+    }
+
+    private void AddCache(int rank, Guid contextId)
+    {
+        if (rank is 0)
+            return;
+
+        var key = $"{nameof(ChangeWrapper)}_{contextId}";
+
+        if (_cacheManager.IsExists(key))
+        {
+#if NET6_0_OR_GREATER
+            key = $"{key}_{Random.Shared.Next(0, 99999)}";
+#else
+            key = $"{key}_{new Random().Next(0, 99999)}";
+#endif
         }
 
         _changeWrapper.TransactionCount = rank;
 
-        AddCache(dbContext.ContextId.InstanceId);
+        _cacheManager.AddCache(key, _changeWrapper);
     }
 
-    private void AddCache(Guid contextId)
-    {
-        var key = $"{nameof(ChangeWrapper)}_{contextId}";
-
-        if (_cacheManager.IsExists(key))
-            key = $"{key}_{new Random().Next(0, 99999)}";
-
-        _cacheManager.Add(key, _changeWrapper);
-    }
-
-    private void AddedChanges(int rank, EntityEntry entityEntry)
-    {
-        if (rank == 1)
-            _changeWrapper.MainEntity = entityEntry.Entity.ToString();
-
-        _changeWrapper.Changes.Add(new Change
+    private Change GetChange(string transactionType, int rank, string entityName) =>
+        new()
         {
             Guid = Guid.NewGuid(),
             ChangeWrapperGuid = _changeWrapper.Guid,
-            TransactionType = TransactionType.Insert.ToString(),
-            NewData = JsonSerializer.Serialize(entityEntry.Entity),
-            OldData = string.Empty,
-            EntityName = entityEntry.Entity.ToString(),
+            TransactionType = transactionType,
+            EntityName = entityName,
             TransactionDate = DateTime.UtcNow,
             Rank = rank
-        });
+        };
+
+    private void AddedChanges(int rank, EntityEntry entityEntry)
+    {
+        SetMainEntity(rank, entityEntry);
+
+        var change = GetChange(nameof(TransactionType.Insert), rank, entityEntry.Entity.ToString());
+
+        change.NewData = JsonSerializer.Serialize(entityEntry.Entity);
+        change.OldData = string.Empty;
+
+        _changeWrapper.Changes.Add(change);
     }
 
     private void ModifiedChanges(int rank, EntityEntry entityEntry)
     {
-        if (rank == 1)
-            _changeWrapper.MainEntity = entityEntry.Entity.ToString();
+        SetMainEntity(rank, entityEntry);
 
         var dbValues = entityEntry.GetDatabaseValues();
 
-        if (dbValues == null)
+        if (dbValues is null)
             return;
 
         var dbEntity = dbValues.ToObject();
         var currentValues = entityEntry.CurrentValues;
         var currentEntity = currentValues.ToObject();
 
-        _changeWrapper.Changes.Add(new Change
-        {
-            Guid = Guid.NewGuid(),
-            ChangeWrapperGuid = _changeWrapper.Guid,
-            TransactionType = TransactionType.Update.ToString(),
-            NewData = JsonSerializer.Serialize(currentEntity),
-            OldData = JsonSerializer.Serialize(dbEntity),
-            EntityName = entityEntry.Entity.ToString(),
-            TransactionDate = DateTime.UtcNow,
-            Rank = rank
-        });
+        var change = GetChange(nameof(TransactionType.Update), rank, entityEntry.Entity.ToString());
+
+        change.NewData = JsonSerializer.Serialize(currentEntity);
+        change.OldData = JsonSerializer.Serialize(dbEntity);
+
+        _changeWrapper.Changes.Add(change);
     }
 
     private void DeletedChanges(int rank, EntityEntry entityEntry)
     {
-        if (rank == 1)
-            _changeWrapper.MainEntity = entityEntry.Entity.ToString();
+        SetMainEntity(rank, entityEntry);
 
-        _changeWrapper.Changes.Add(new Change
-        {
-            Guid = Guid.NewGuid(),
-            ChangeWrapperGuid = _changeWrapper.Guid,
-            TransactionType = TransactionType.Delete.ToString(),
-            NewData = string.Empty,
-            OldData = JsonSerializer.Serialize(entityEntry.Entity),
-            TransactionDate = DateTime.UtcNow,
-            EntityName = entityEntry.Entity.ToString(),
-            Rank = rank
-        });
+        var change = GetChange(nameof(TransactionType.Delete), rank, entityEntry.Entity.ToString());
+
+        change.NewData = string.Empty;
+        change.OldData = JsonSerializer.Serialize(entityEntry.Entity);
+
+        _changeWrapper.Changes.Add(change);
+    }
+
+    private void SetMainEntity(int rank, EntityEntry entityEntry)
+    {
+        if (rank is 1)
+            _changeWrapper.MainEntity = entityEntry.Entity.ToString();
     }
 }

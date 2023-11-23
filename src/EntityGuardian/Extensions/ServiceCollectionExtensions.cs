@@ -6,7 +6,6 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         Action<EntityGuardianOption> configuration)
     {
-
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 

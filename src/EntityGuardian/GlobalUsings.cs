@@ -1,10 +1,10 @@
 // Global using directives
 
-global using Castle.DynamicProxy;
 global using EntityGuardian.BackgroundServices;
 global using EntityGuardian.Entities;
 global using EntityGuardian.Entities.Dtos;
 global using EntityGuardian.Enums;
+global using EntityGuardian.Extensions;
 global using EntityGuardian.Interfaces;
 global using EntityGuardian.Middlewares;
 global using EntityGuardian.Options;
@@ -16,10 +16,11 @@ global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.StaticFiles;
 global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.ChangeTracking;
+global using Microsoft.EntityFrameworkCore.Diagnostics;
 global using Microsoft.Extensions.Caching.Memory;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
-global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.FileProviders;
 global using Microsoft.Extensions.Hosting;
 global using Microsoft.Extensions.Logging;
@@ -35,6 +36,7 @@ global using System.Collections.Generic;
 global using System.ComponentModel.DataAnnotations;
 global using System.IO;
 global using System.Linq;
+global using System.Net;
 global using System.Reflection;
 global using System.Text;
 global using System.Text.Json;

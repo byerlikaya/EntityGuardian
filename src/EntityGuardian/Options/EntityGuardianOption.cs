@@ -5,6 +5,8 @@ public class EntityGuardianOption
 
     private string _routePrefix;
 
+    private string _entityGuardianSchemaName;
+
     public string RoutePrefix
     {
         get => string.IsNullOrEmpty(_routePrefix)
@@ -15,14 +17,9 @@ public class EntityGuardianOption
 
     public bool ClearDataOnStartup { get; set; }
 
-    /// <summary>
-    /// will be defined in seconds.
-    /// </summary>
     public int DataSynchronizationTimeout { get; set; }
 
     public StorageType StorageType { get; set; }
-
-    private string _entityGuardianSchemaName;
 
     public string EntityGuardianSchemaName
     {
