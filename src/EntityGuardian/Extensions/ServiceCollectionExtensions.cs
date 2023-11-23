@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IStorageService, SqlServerStorage>();
 
-        services.AddTransient<EntityGuardianInterceptor>();
+        services.AddScoped<EntityGuardianInterceptor>();
 
         services.AddHostedService<DataBackgroundService>();
 

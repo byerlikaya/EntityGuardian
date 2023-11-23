@@ -107,6 +107,9 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
 
     private void ModifiedChanges(int rank, EntityEntry entityEntry)
     {
+        if (rank == 1)
+            _changeWrapper.MainEntity = entityEntry.Entity.ToString();
+
         var dbValues = entityEntry.GetDatabaseValues();
 
         if (dbValues == null)
@@ -115,9 +118,6 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
         var dbEntity = dbValues.ToObject();
         var currentValues = entityEntry.CurrentValues;
         var currentEntity = currentValues.ToObject();
-
-        if (rank == 1)
-            _changeWrapper.MainEntity = entityEntry.Entity.ToString();
 
         _changeWrapper.Changes.Add(new Change
         {
