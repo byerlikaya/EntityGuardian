@@ -7,13 +7,31 @@ public static class ServiceCollectionExtensions
         string connectionString,
         Action<EntityGuardianOption> configuration)
     {
-        if (services is null) throw new ArgumentNullException(nameof(services));
-        if (configuration is null) throw new ArgumentNullException(nameof(configuration));
-        if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentNullException(connectionString);
+        ArgumentNullControl(services, connectionString, configuration);
 
-        services.AddMemoryCache();
+        SingletonServices(services, configuration);
 
+        ScopedServices(services, connectionString);
+
+        ServiceTool.Build(services);
+
+        return services;
+    }
+
+    private static void ScopedServices(
+        IServiceCollection services,
+        string connectionString)
+    {
         services.AddDbContext<EntityGuardianDbContext>(x => x.UseSqlServer(connectionString));
+
+        services.AddScoped<EntityGuardianInterceptor>();
+    }
+
+    private static void SingletonServices(
+        IServiceCollection services,
+        Action<EntityGuardianOption> configuration)
+    {
+        services.AddMemoryCache();
 
         services.AddSingleton<ICacheManager, CacheManager>();
 
@@ -28,12 +46,16 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IStorageService, SqlServerStorage>();
 
-        services.AddScoped<EntityGuardianInterceptor>();
-
         services.AddHostedService<DataBackgroundService>();
+    }
 
-        ServiceTool.Build(services);
-
-        return services;
+    private static void ArgumentNullControl(
+        IServiceCollection services,
+        string connectionString,
+        Action<EntityGuardianOption> configuration)
+    {
+        if (services is null) throw new ArgumentNullException(nameof(services));
+        if (configuration is null) throw new ArgumentNullException(nameof(configuration));
+        if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentNullException(connectionString);
     }
 }

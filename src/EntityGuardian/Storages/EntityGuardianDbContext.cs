@@ -2,27 +2,14 @@
 
 internal class EntityGuardianDbContext : DbContext
 {
-    private IConfiguration Configuration { get; }
 
     private readonly EntityGuardianOption _entityGuardianOption;
 
-    protected EntityGuardianDbContext(
-        DbContextOptions<EntityGuardianDbContext> options,
-        IConfiguration configuration,
-        EntityGuardianOption entityGuardianOption) : base(options)
-    {
-        Configuration = configuration;
+    protected EntityGuardianDbContext(DbContextOptions<EntityGuardianDbContext> options, EntityGuardianOption entityGuardianOption) : base(options) =>
         _entityGuardianOption = entityGuardianOption;
-    }
 
-    public EntityGuardianDbContext(
-        DbContextOptions options,
-        IConfiguration configuration,
-        EntityGuardianOption entityGuardianOption) : base(options)
-    {
-        Configuration = configuration;
+    public EntityGuardianDbContext(DbContextOptions options, EntityGuardianOption entityGuardianOption) : base(options) =>
         _entityGuardianOption = entityGuardianOption;
-    }
 
     public DbSet<ChangeWrapper> ChangeWrapper { get; set; }
 

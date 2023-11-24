@@ -92,7 +92,8 @@ internal class SqlServerStorage : IStorageService
 
     private static string GetStringResource(Assembly assembly, string resourceName)
     {
-        using var stream = assembly.GetManifestResourceStream(resourceName) ?? throw new InvalidOperationException($"Requested resource `{resourceName}` was not found in the assembly `{assembly}`.");
+        using var stream = assembly.GetManifestResourceStream(resourceName)
+                           ?? throw new InvalidOperationException($"Requested resource `{resourceName}` was not found in the assembly `{assembly}`.");
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }
