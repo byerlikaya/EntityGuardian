@@ -19,6 +19,7 @@ namespace Sample.Api
                 {
                     logging.ClearProviders();
                     logging.SetMinimumLevel(LogLevel.Trace);
+                    logging.AddConsole();
                 });
     }
 }
