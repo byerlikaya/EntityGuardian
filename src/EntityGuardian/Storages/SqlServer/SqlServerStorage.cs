@@ -25,16 +25,16 @@ internal class SqlServerStorage : IStorageService
         _context.Database.ExecuteSqlRaw($"DELETE FROM {SchemaName(_options.EntityGuardianSchemaName)}.ChangeWrapper");
     }
 
-    public async Task Synchronization()
+    public async Task Synchronization(CancellationToken cancellationToken)
     {
         if (MemoryDataControl(out var memoryData))
         {
             using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
-                await _context.ChangeWrapper.AddRangeAsync(memoryData.Select(x => x.data).ToList());
+                await _context.ChangeWrapper.AddRangeAsync(memoryData.Select(x => x.data).ToList(), cancellationToken);
 
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
 
                 transaction.Complete();
 

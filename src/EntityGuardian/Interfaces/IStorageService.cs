@@ -2,7 +2,7 @@
 
 public interface IStorageService
 {
-    Task Synchronization();
+    Task Synchronization(CancellationToken cancellationToken);
 
     Task<ResponseData<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(ChangeWrapperRequest searchRequest);
 

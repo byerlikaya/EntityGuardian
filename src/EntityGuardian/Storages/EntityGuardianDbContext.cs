@@ -15,7 +15,7 @@ internal class EntityGuardianDbContext : DbContext
         _entityGuardianOption = entityGuardianOption;
     }
 
-    protected EntityGuardianDbContext(
+    public EntityGuardianDbContext(
         DbContextOptions options,
         IConfiguration configuration,
         EntityGuardianOption entityGuardianOption) : base(options)
