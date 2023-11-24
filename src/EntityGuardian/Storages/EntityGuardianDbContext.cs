@@ -33,12 +33,4 @@ internal class EntityGuardianDbContext : DbContext
         modelBuilder.HasDefaultSchema(_entityGuardianOption.EntityGuardianSchemaName);
         base.OnModelCreating(modelBuilder);
     }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            base.OnConfiguring(optionsBuilder.UseSqlServer(Configuration.GetConnectionString("SqlServerConnection")));
-        }
-    }
 }

@@ -31,7 +31,7 @@ namespace Sample.Api
 
             services.AddTransient<ITestRepository, TestRepository>();
 
-            services.AddEntityGuardian(configuration =>
+            services.AddEntityGuardian(Configuration.GetConnectionString("SqlServerConnection"), configuration =>
             {
                 configuration.DataSynchronizationTimeout = 5;
                 configuration.StorageType = StorageType.SqlServer;

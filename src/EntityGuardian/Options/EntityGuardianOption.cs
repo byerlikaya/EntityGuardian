@@ -17,9 +17,9 @@ public class EntityGuardianOption
 
     public bool ClearDataOnStartup { get; set; }
 
-    public int DataSynchronizationTimeout { get; set; }
+    public int DataSynchronizationTimeout { get; set; } = 30;
 
-    public StorageType StorageType { get; set; }
+    public StorageType StorageType { get; set; } = StorageType.SqlServer;
 
     public string EntityGuardianSchemaName
     {
