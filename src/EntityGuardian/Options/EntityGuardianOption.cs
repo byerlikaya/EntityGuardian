@@ -9,7 +9,7 @@ public class EntityGuardianOption
 
     public string RoutePrefix
     {
-        get => string.IsNullOrEmpty(_routePrefix)
+        get => string.IsNullOrWhiteSpace(_routePrefix)
             ? "entity-guardian"
             : _routePrefix;
         set => _routePrefix = value;
@@ -23,7 +23,7 @@ public class EntityGuardianOption
 
     public string EntityGuardianSchemaName
     {
-        get => string.IsNullOrEmpty(_entityGuardianSchemaName)
+        get => string.IsNullOrWhiteSpace(_entityGuardianSchemaName)
                 ? "EntityGuardian"
                 : _entityGuardianSchemaName;
         set => _entityGuardianSchemaName = value;

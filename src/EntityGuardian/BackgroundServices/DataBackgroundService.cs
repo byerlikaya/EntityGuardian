@@ -8,7 +8,10 @@ public class DataBackgroundService : BackgroundService
     private DateTime _nextRunTime = DateTime.UtcNow;
 
 
-    public DataBackgroundService(EntityGuardianOption configuration, IStorageService storageService, ILogger<DataBackgroundService> logger)
+    public DataBackgroundService(
+        EntityGuardianOption configuration,
+        IStorageService storageService,
+        ILogger<DataBackgroundService> logger)
     {
         _configuration = configuration;
         _storageService = storageService;

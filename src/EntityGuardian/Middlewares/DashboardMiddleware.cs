@@ -1,4 +1,6 @@
-﻿namespace EntityGuardian.Middlewares;
+﻿using Microsoft.Extensions.Primitives;
+
+namespace EntityGuardian.Middlewares;
 
 public class DashboardMiddleware
 {
@@ -27,45 +29,30 @@ public class DashboardMiddleware
 
     public async Task Invoke(HttpContext httpContext)
     {
-        var httpRequest = httpContext.Request;
-        var httpMethod = httpRequest.Method;
-        var path = httpRequest.Path;
-
-        if (httpMethod is "GET" && path.Value is not null)
-            if (await TryHandleSpecialPath(httpContext, path))
-                return;
-
+        if (await TryHandleSpecialPath(httpContext))
+            return;
         await _staticFileMiddleware.Invoke(httpContext);
     }
 
-    private async Task<bool> TryHandleSpecialPath(HttpContext httpContext, PathString path)
+    private async Task<bool> TryHandleSpecialPath(HttpContext httpContext)
     {
-        if (path.IsRedirect(_options.RoutePrefix))
-        {
-            RespondWithRedirect(httpContext.Response, path);
-        }
-        else if (path.IsIndexHtml(_options.RoutePrefix))
-        {
-            await RespondWithIndexHtml(httpContext);
-        }
-        else if (path.IsDataHtml(_options.RoutePrefix))
-        {
-            await RespondWithDataHtml(httpContext);
-        }
-        else if (path.IsChangeWrapperDetail(_options.RoutePrefix))
-        {
-            await RespondWithChangeWrapperDetailHtml(httpContext);
-        }
-        else if (path.IsChangeDetail(_options.RoutePrefix))
-        {
-            await RespondWithChangeDetailHtml(httpContext);
-        }
-        else
-        {
-            return false;
-        }
+        var httpRequest = httpContext.Request;
+        var httpMethod = httpRequest.Method;
 
-        return true;
+        if (httpMethod is not "GET")
+            return false;
+
+        var pageType = httpRequest.Path.GetPageType(_options.RoutePrefix) switch
+        {
+            PageType.None => RespondWithRedirect(httpContext),
+            PageType.Index => await RespondWithIndexHtml(httpContext),
+            PageType.Data => await RespondWithDataHtml(httpContext),
+            PageType.ChangeWrapperDetail => await RespondWithChangeWrapperDetailHtml(httpContext),
+            PageType.ChangeDetail => await RespondWithChangeDetailHtml(httpContext),
+            _ => PageType.None
+        };
+
+        return pageType is not PageType.None;
     }
 
     private static void SetResponseContent(HttpContext httpContext, ResponseContentType responseContentType)
@@ -76,19 +63,22 @@ public class DashboardMiddleware
             : "application/json; charset=utf-8";
     }
 
-    private static void RespondWithRedirect(HttpResponse response, PathString pathString)
+    private static PageType RespondWithRedirect(HttpContext httpContext)
     {
-        var value = pathString.Value;
+        var httpRequest = httpContext.Request;
+        var value = httpRequest.Path.Value;
 
         var relativeIndexUrl = string.IsNullOrWhiteSpace(value) || value.EndsWith('/')
             ? "index.html"
             : $"{value.Split('/').Last()}/index.html";
 
-        response.StatusCode = HttpStatusCode.MovedPermanently.GetHashCode();
-        response.Headers["Location"] = relativeIndexUrl;
+        httpContext.Response.StatusCode = HttpStatusCode.MovedPermanently.GetHashCode();
+        httpContext.Response.Headers["Location"] = relativeIndexUrl;
+
+        return PageType.None;
     }
 
-    private async Task RespondWithIndexHtml(HttpContext httpContext)
+    private async Task<PageType> RespondWithIndexHtml(HttpContext httpContext)
     {
         SetResponseContent(httpContext, ResponseContentType.Html);
 
@@ -96,9 +86,11 @@ public class DashboardMiddleware
         using var reader = new StreamReader(stream);
         var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
         await httpContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+
+        return PageType.Index;
     }
 
-    private async Task RespondWithChangeWrapperDetailHtml(HttpContext httpContext)
+    private async Task<PageType> RespondWithChangeWrapperDetailHtml(HttpContext httpContext)
     {
         SetResponseContent(httpContext, ResponseContentType.Html);
 
@@ -110,9 +102,11 @@ public class DashboardMiddleware
         htmlBuilder.Replace("#guid", guid);
 
         await httpContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+
+        return PageType.ChangeWrapperDetail;
     }
 
-    private async Task RespondWithChangeDetailHtml(HttpContext httpContext)
+    private async Task<PageType> RespondWithChangeDetailHtml(HttpContext httpContext)
     {
         SetResponseContent(httpContext, ResponseContentType.Html);
 
@@ -129,9 +123,11 @@ public class DashboardMiddleware
         htmlBuilder.Replace("#changeWrapeerGuid", changeWrapperGuid);
 
         await httpContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+
+        return PageType.ChangeDetail;
     }
 
-    private async Task RespondWithDataHtml(HttpContext httpContext)
+    private async Task<PageType> RespondWithDataHtml(HttpContext httpContext)
     {
         SetResponseContent(httpContext, ResponseContentType.Json);
 
@@ -141,20 +137,22 @@ public class DashboardMiddleware
         using var reader = new StreamReader(stream);
         var htmlBuilder = new StringBuilder(await reader.ReadToEndAsync());
 
-        var json = "";
-
-        if (string.Equals(type, "changewrappers", StringComparison.OrdinalIgnoreCase))
-        {
-            json = await ChangeWrappersJson(httpContext);
-        }
-        else if (string.Equals(type, "changes", StringComparison.OrdinalIgnoreCase))
-        {
-            json = await ChangesJson(httpContext);
-        }
-
-        htmlBuilder.Replace("#entity-guardian-data", json);
+        htmlBuilder.Replace("#entity-guardian-data", await GetJson(httpContext, type));
 
         await httpContext.Response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
+
+        return PageType.Data;
+    }
+
+    private async Task<string> GetJson(HttpContext httpContext, StringValues type)
+    {
+        if (string.Equals(type, "changewrappers", StringComparison.OrdinalIgnoreCase))
+            return await ChangeWrappersJson(httpContext);
+
+        if (string.Equals(type, "changes", StringComparison.OrdinalIgnoreCase))
+            return await ChangesJson(httpContext);
+
+        return string.Empty;
     }
 
     private async Task<string> ChangeWrappersJson(HttpContext httpContext)
