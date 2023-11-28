@@ -19,7 +19,7 @@ BEGIN
     (
         [Guid] [uniqueidentifier] NOT NULL,
         [ChangeWrapperGuid] [uniqueidentifier] NOT NULL,
-        [Rank] [int] NOT NULL,
+        [DbContextId] [uniqueidentifier] NOT NULL,
         [TransactionType] [nvarchar](50) NOT NULL,
         [EntityName] [nvarchar](500) NOT NULL,
         [OldData] [text] NULL,
@@ -46,9 +46,9 @@ BEGIN
     CREATE TABLE [$(EntityGuardiaonSchemaName)].[ChangeWrapper]
     (
         [Guid] [uniqueidentifier] NOT NULL,
+        [DbContextId] [uniqueidentifier] NOT NULL,
         [Username] [nvarchar](250) NOT NULL,
         [IpAddress] [nvarchar](50) NOT NULL,
-        [MainEntity] [nvarchar](500) NOT NULL,
         [TransactionCount] [int] NOT NULL,
         [TransactionDate] [datetime] NOT NULL,
         CONSTRAINT [PK_ChangeWrapper]

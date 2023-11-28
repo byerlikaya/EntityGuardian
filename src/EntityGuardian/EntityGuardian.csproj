@@ -2,17 +2,17 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageId>EntityGuardian</PackageId>
-    <Version>1.0.0-beta</Version>
+    <Version>1.0.0-beta.1</Version>
     <Authors>Barış Yerlikaya</Authors>
     <Company>Barış Yerlikaya</Company>
     <Product>EntityGuardian</Product>
     <Title>Entity Guardian</Title>
-    <Description>This is the alpha version of our project, development is not yet complete. Please do not use it.</Description>
+    <Description>This is the beta version of our project, final checks and tests are being done, and the release version with documentation will be released soon.</Description>
     <Copyright>Copyright (c) 2023 Barış Yerlikaya</Copyright>
   </PropertyGroup>
 

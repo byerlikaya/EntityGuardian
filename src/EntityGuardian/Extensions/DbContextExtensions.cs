@@ -1,15 +1,11 @@
 ﻿namespace EntityGuardian.Extensions;
 
-public static class DbContextExtensions
+internal static class DbContextExtensions
 {
-    public static IEnumerable<EntityEntry> BringTheEntriesToBeAffected(this DbContext dbContext)
-    {
-        if (dbContext is null)
-            return Enumerable.Empty<EntityEntry>();
-
-        return dbContext.ChangeTracker
+    public static IEnumerable<EntityEntry> BringTheEntriesToBeAffected(this DbContext dbContext) =>
+        dbContext?.ChangeTracker
             .Entries()
             .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
-            .ToList();
-    }
+            .ToList()
+        ?? Enumerable.Empty<EntityEntry>();
 }

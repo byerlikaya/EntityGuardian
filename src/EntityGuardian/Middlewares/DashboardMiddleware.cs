@@ -1,34 +1,30 @@
-﻿using Microsoft.Extensions.Primitives;
-
-namespace EntityGuardian.Middlewares;
+﻿namespace EntityGuardian.Middlewares;
 
 public class DashboardMiddleware
 {
-    private readonly IStorageService _storageService;
+    private IStorageService _storageService;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly ILoggerFactory _loggerFactory;
-
     private readonly EntityGuardianOption _options;
     private readonly StaticFileMiddleware _staticFileMiddleware;
 
-
     public DashboardMiddleware(
-        IStorageService storageService,
         IWebHostEnvironment webHostEnvironment,
         ILoggerFactory loggerFactory,
         EntityGuardianOption options,
         RequestDelegate next
        )
     {
-        _storageService = storageService;
         _webHostEnvironment = webHostEnvironment;
         _loggerFactory = loggerFactory;
         _options = options;
         _staticFileMiddleware = CreateStaticFileMiddleware(next);
     }
 
-    public async Task Invoke(HttpContext httpContext)
+    public async Task Invoke(HttpContext httpContext, IStorageService storageService)
     {
+        _storageService = storageService;
+
         if (await TryHandleSpecialPath(httpContext))
             return;
         await _staticFileMiddleware.Invoke(httpContext);
@@ -159,11 +155,31 @@ public class DashboardMiddleware
     {
         var changeWrappers = await _storageService.ChangeWrappersAsync(CreateChangeWrapperRequest(httpContext));
 
+        SetChangeWrapperEntites(changeWrappers.ResultObject);
+
         return JsonSerializer.Serialize(changeWrappers, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
+    }
+
+    private static void SetChangeWrapperEntites(IEnumerable<ChangeWrapper> changeWrappers)
+    {
+        var entties = new List<string>();
+
+        foreach (var changeWrapper in changeWrappers)
+        {
+            StringBuilder stringBuilder = new();
+            foreach (var change in changeWrapper.Changes.Distinct())
+            {
+                if (entties.Exists(x => x == change.EntityName)) continue;
+                if (string.IsNullOrWhiteSpace(change.EntityName)) continue;
+                stringBuilder.AppendLine($"({change.TransactionType}) - {change.EntityName}<br>");
+                entties.Add(change.EntityName);
+            }
+            changeWrapper.Entities = stringBuilder.ToString();
+        }
     }
 
     private async Task<string> ChangesJson(HttpContext httpContext)
@@ -201,10 +217,12 @@ public class DashboardMiddleware
     {
         var baseRequest = CreateBaseRequest(httpContext);
 
-        var mainEntity = httpContext.Request.Query["mainEntity"];
+        var contextId = Guid.TryParse(httpContext.Request.Query["contextId"], out var guid) ? guid : (Guid?)null;
+        var entities = httpContext.Request.Query["entities"];
         var transactionCount = int.TryParse(httpContext.Request.Query["transactionCount"], out var count) ? count : (int?)null;
         var username = httpContext.Request.Query["username"];
         var ipAddress = httpContext.Request.Query["ipAddress"];
+
 
         return new ChangeWrapperRequest
         {
@@ -215,10 +233,11 @@ public class DashboardMiddleware
                 Name = baseRequest.OrderBy.Name,
                 OrderType = baseRequest.OrderBy.OrderType
             },
-            MainEntity = mainEntity,
-            IpAddress = ipAddress,
             TransactionCount = transactionCount,
-            Username = username
+            Username = username,
+            IpAddress = ipAddress,
+            ContextId = contextId,
+            EntityName = entities
         };
     }
 
@@ -227,7 +246,6 @@ public class DashboardMiddleware
         var baseRequest = CreateBaseRequest(httpContext);
 
         var guid = Guid.Parse(httpContext.Request.Query["guid"]);
-        var rank = int.TryParse(httpContext.Request.Query["rank"], out var rankValue) ? rankValue : (int?)null;
 
         var transactionType = httpContext.Request.Query["transactionType"];
         var entityName = httpContext.Request.Query["entityName"];
@@ -243,7 +261,6 @@ public class DashboardMiddleware
                 OrderType = baseRequest.OrderBy.OrderType
             },
             EntityName = entityName,
-            Rank = rank,
             TransactionType = transactionType
         };
     }

@@ -1,31 +1,12 @@
 ﻿namespace EntityGuardian;
 
-public class EntityGuardianInterceptor : SaveChangesInterceptor
+public class EntityGuardianInterceptor(
+    IHttpContextAccessor httpContextAccessor,
+    ICacheManager cacheManager) : SaveChangesInterceptor
 {
-    private readonly ICacheManager _cacheManager;
-    private readonly ChangeWrapper _changeWrapper;
-
-    public EntityGuardianInterceptor(
-        IHttpContextAccessor httpContextAccessor,
-        ICacheManager cacheManager)
-    {
-        _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
-
-        if (httpContextAccessor is null)
-            throw new ArgumentNullException(nameof(httpContextAccessor));
-
-        var user = httpContextAccessor.HttpContext?.User;
-        var connection = httpContextAccessor.HttpContext?.Connection;
-
-        _changeWrapper = new ChangeWrapper
-        {
-            Guid = Guid.NewGuid(),
-            IpAddress = connection?.RemoteIpAddress?.ToString(),
-            TransactionDate = DateTime.UtcNow,
-            Username = user?.Identity?.Name ?? "undefined",
-            Changes = new List<Change>()
-        };
-    }
+    private readonly ICacheManager _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+    private ChangeWrapper _changeWrapper;
 
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
@@ -46,38 +27,39 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
 
     private void ApplyChanges(DbContext dbContext)
     {
-        var rank = 0;
+        var user = _httpContextAccessor.HttpContext?.User;
+        var connection = _httpContextAccessor.HttpContext?.Connection;
+
+        _changeWrapper = new ChangeWrapper
+        {
+            Guid = Guid.NewGuid(),
+            IpAddress = connection?.RemoteIpAddress?.ToString(),
+            TransactionDate = DateTime.UtcNow,
+            Username = user?.Identity?.Name ?? "undefined",
+            Changes = new List<Change>()
+        };
 
         foreach (var entityEntry in dbContext.BringTheEntriesToBeAffected())
         {
-            rank++;
             switch (entityEntry.State)
             {
                 case EntityState.Added:
-                    AddedChanges(rank, entityEntry);
+                    AddedChanges(dbContext.ContextId.InstanceId, entityEntry);
                     break;
                 case EntityState.Modified:
-                    ModifiedChanges(rank, entityEntry);
+                    ModifiedChanges(dbContext.ContextId.InstanceId, entityEntry);
                     break;
                 case EntityState.Deleted:
-                    DeletedChanges(rank, entityEntry);
-                    break;
-                case EntityState.Detached:
-                case EntityState.Unchanged:
-                default:
-                    SetMainEntity(rank, entityEntry);
+                    DeletedChanges(dbContext.ContextId.InstanceId, entityEntry);
                     break;
             }
         }
 
-        AddCache(rank, dbContext.ContextId.InstanceId);
+        AddCache(dbContext.ContextId.InstanceId);
     }
 
-    private void AddCache(int rank, Guid contextId)
+    private void AddCache(Guid contextId)
     {
-        if (rank is 0)
-            return;
-
         var key = $"{nameof(ChangeWrapper)}_{contextId}";
 
         if (_cacheManager.IsExists(key))
@@ -89,12 +71,13 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
 #endif
         }
 
-        _changeWrapper.TransactionCount = rank;
+        _changeWrapper.DbContextId = contextId;
+        _changeWrapper.TransactionCount = _changeWrapper.Changes.Count;
 
         _cacheManager.AddCache(key, _changeWrapper);
     }
 
-    private Change GetChange(string transactionType, int rank, string entityName) =>
+    private Change GetChange(Guid dbContextId, string transactionType, string entityName) =>
         new()
         {
             Guid = Guid.NewGuid(),
@@ -102,14 +85,12 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
             TransactionType = transactionType,
             EntityName = entityName,
             TransactionDate = DateTime.UtcNow,
-            Rank = rank
+            DbContextId = dbContextId
         };
 
-    private void AddedChanges(int rank, EntityEntry entityEntry)
+    private void AddedChanges(Guid dbContextId, EntityEntry entityEntry)
     {
-        SetMainEntity(rank, entityEntry);
-
-        var change = GetChange(nameof(TransactionType.Insert), rank, entityEntry.Entity.ToString());
+        var change = GetChange(dbContextId, nameof(TransactionType.Insert), entityEntry.Entity.ToString());
 
         change.NewData = JsonSerializer.Serialize(entityEntry.Entity);
         change.OldData = string.Empty;
@@ -117,10 +98,8 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
         _changeWrapper.Changes.Add(change);
     }
 
-    private void ModifiedChanges(int rank, EntityEntry entityEntry)
+    private void ModifiedChanges(Guid dbContextId, EntityEntry entityEntry)
     {
-        SetMainEntity(rank, entityEntry);
-
         var dbValues = entityEntry.GetDatabaseValues();
 
         if (dbValues is null)
@@ -130,7 +109,7 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
         var currentValues = entityEntry.CurrentValues;
         var currentEntity = currentValues.ToObject();
 
-        var change = GetChange(nameof(TransactionType.Update), rank, entityEntry.Entity.ToString());
+        var change = GetChange(dbContextId, nameof(TransactionType.Update), entityEntry.Entity.ToString());
 
         change.NewData = JsonSerializer.Serialize(currentEntity);
         change.OldData = JsonSerializer.Serialize(dbEntity);
@@ -138,11 +117,9 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
         _changeWrapper.Changes.Add(change);
     }
 
-    private void DeletedChanges(int rank, EntityEntry entityEntry)
+    private void DeletedChanges(Guid dbContextId, EntityEntry entityEntry)
     {
-        SetMainEntity(rank, entityEntry);
-
-        var change = GetChange(nameof(TransactionType.Delete), rank, entityEntry.Entity.ToString());
+        var change = GetChange(dbContextId, nameof(TransactionType.Delete), entityEntry.Entity.ToString());
 
         change.NewData = string.Empty;
         change.OldData = JsonSerializer.Serialize(entityEntry.Entity);
@@ -150,9 +127,4 @@ public class EntityGuardianInterceptor : SaveChangesInterceptor
         _changeWrapper.Changes.Add(change);
     }
 
-    private void SetMainEntity(int rank, EntityEntry entityEntry)
-    {
-        if (rank is 1)
-            _changeWrapper.MainEntity = entityEntry.Entity.ToString();
-    }
 }

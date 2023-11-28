@@ -13,8 +13,6 @@ public static class ServiceCollectionExtensions
 
         ScopedServices(services, connectionString);
 
-        ServiceTool.Build(services);
-
         return services;
     }
 
@@ -23,6 +21,8 @@ public static class ServiceCollectionExtensions
         string connectionString)
     {
         services.AddDbContext<EntityGuardianDbContext>(x => x.UseSqlServer(connectionString));
+
+        services.AddScoped<IStorageService, SqlServerStorage>();
 
         services.AddScoped<EntityGuardianInterceptor>();
     }
@@ -43,8 +43,6 @@ public static class ServiceCollectionExtensions
             configuration(configurationInstance);
             return configurationInstance;
         });
-
-        services.AddSingleton<IStorageService, SqlServerStorage>();
 
         services.AddHostedService<DataBackgroundService>();
     }

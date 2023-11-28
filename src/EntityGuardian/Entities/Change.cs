@@ -7,7 +7,7 @@ public class Change
 
     public Guid ChangeWrapperGuid { get; set; }
 
-    public int Rank { get; set; }
+    public Guid DbContextId { get; set; }
 
     public string TransactionType { get; set; }
 

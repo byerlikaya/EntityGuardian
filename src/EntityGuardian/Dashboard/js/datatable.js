@@ -3,7 +3,7 @@
         processing: true,
         serverSide: true,
         searching: false,
-        order: [[4, "desc"]],
+        order: [[5, "desc"]],
         ajax:
         {
             draw: 1,
@@ -13,7 +13,8 @@
             dataSrc: "resultObject",
             "data": function (d) {
                
-                d.mainEntity = $("#mainEntity").val();
+                d.contextId = $("#contextId").val();
+                d.entities = $("#entities").val();
                 d.transactionCount = $("#transactionCount").val();
                 d.userName = $("#username").val();
                 d.ipAddress = $("#ipaddress").val();
@@ -27,11 +28,17 @@
         },
         columns: [
             {
-                data: "mainEntity",
+                data: "dbContextId",
                 render: function (data, type, row) {
-                    return row.mainEntity;
+                    return row.dbContextId;
                 }
             },           
+            {
+                data: "entities",
+                render: function (data, type, row) {
+                    return row.entities;
+                }
+            },   
             {
                 data: "username",
                 render: function (data, type, row) {
@@ -99,9 +106,9 @@
         },
         columns: [
             {
-                data: "rank",
+                data: "dbContextId",
                 render: function (data, type, row) {
-                    return row.rank;
+                    return row.dbContextId;
                 }
             },
             {

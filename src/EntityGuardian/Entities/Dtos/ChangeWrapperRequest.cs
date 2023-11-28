@@ -2,8 +2,11 @@
 
 public class ChangeWrapperRequest : BaseRequest
 {
-    [TextualWhereClause(StringMethod.Contains)]
-    public string MainEntity { get; set; }
+    [WhereClause("DbContextId")]
+    public Guid? ContextId { get; set; }
+
+    [TextualWhereClause("Changes.EntityName", StringMethod.Contains)]
+    public string EntityName { get; set; }
 
     [WhereClause]
     public int? TransactionCount { get; set; }

@@ -1,19 +1,19 @@
 ﻿namespace EntityGuardian.Storages.SqlServer;
 
-internal class SqlServerStorage : IStorageService
+internal class SqlServerStorage(
+    ICacheManager cacheManager,
+    EntityGuardianOption options,
+    EntityGuardianDbContext context) : IStorageService
 {
-    private readonly ICacheManager _cacheManager;
-    private readonly EntityGuardianDbContext _context;
-    private readonly EntityGuardianOption _options;
-
-    public SqlServerStorage(
-        ICacheManager cacheManager,
-        EntityGuardianOption options)
+    public async Task CreateDatabaseTables()
     {
-        _context = ServiceTool.ServiceProvider.GetService<EntityGuardianDbContext>();
-        _cacheManager = cacheManager;
-        _options = options;
-        CreateDatabaseTables();
+        await context.Database.ExecuteSqlRawAsync(GetSqlScript(options.EntityGuardianSchemaName));
+
+        if (!options.ClearDataOnStartup)
+            return;
+
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM {SchemaName(options.EntityGuardianSchemaName)}.Change");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM {SchemaName(options.EntityGuardianSchemaName)}.ChangeWrapper");
     }
 
     public async Task Synchronization(CancellationToken cancellationToken)
@@ -23,13 +23,13 @@ internal class SqlServerStorage : IStorageService
             using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
-                await _context.ChangeWrapper.AddRangeAsync(memoryData.Select(x => x.data).ToList(), cancellationToken);
+                await context.ChangeWrapper.AddRangeAsync(memoryData.Select(x => x.data).ToList(), cancellationToken);
 
-                await _context.SaveChangesAsync(cancellationToken);
+                await context.SaveChangesAsync(cancellationToken);
 
                 transaction.Complete();
 
-                memoryData.ForEach(x => _cacheManager.Remove(x.key));
+                memoryData.ForEach(x => cacheManager.Remove(x.key));
             }
             catch
             {
@@ -40,7 +40,9 @@ internal class SqlServerStorage : IStorageService
 
     public async Task<ResponseData<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(ChangeWrapperRequest searchRequest)
     {
-        var query = _context.ChangeWrapper.Where(searchRequest);
+        var query = context.ChangeWrapper
+            .Include(x => x.Changes)
+            .Where(searchRequest);
 
         var count = await query.CountAsync();
 
@@ -55,7 +57,7 @@ internal class SqlServerStorage : IStorageService
 
     public async Task<ResponseData<IEnumerable<Change>>> ChangesAsync(ChangesRequest searchRequest)
     {
-        var query = _context.Change.Where(searchRequest);
+        var query = context.Change.Where(searchRequest);
 
         var count = await query.CountAsync();
 
@@ -68,24 +70,15 @@ internal class SqlServerStorage : IStorageService
         return new ResponseData<IEnumerable<Change>>(result, count);
     }
 
-    public async Task<Change> ChangeAsync(Guid guid) =>
-        await _context.Change.FirstOrDefaultAsync(x => x.Guid == guid);
+    public async Task<Change> ChangeAsync(Guid guid)
+    {
+        return await context.Change.FirstOrDefaultAsync(x => x.Guid == guid);
+    }
 
     private bool MemoryDataControl(out List<(string key, ChangeWrapper data)> memoryData)
     {
-        memoryData = _cacheManager.GetList<ChangeWrapper>(nameof(ChangeWrapper));
+        memoryData = cacheManager.GetList<ChangeWrapper>(nameof(ChangeWrapper));
         return memoryData.Any();
-    }
-
-    private void CreateDatabaseTables()
-    {
-        _context.Database.ExecuteSqlRaw(GetSqlScript(_options.EntityGuardianSchemaName));
-
-        if (!_options.ClearDataOnStartup)
-            return;
-
-        _context.Database.ExecuteSqlRaw($"DELETE FROM {SchemaName(_options.EntityGuardianSchemaName)}.Change");
-        _context.Database.ExecuteSqlRaw($"DELETE FROM {SchemaName(_options.EntityGuardianSchemaName)}.ChangeWrapper");
     }
 
     private static string GetSqlScript(string schema) =>

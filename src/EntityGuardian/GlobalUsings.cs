@@ -34,6 +34,7 @@ global using System;
 global using System.Collections;
 global using System.Collections.Generic;
 global using System.ComponentModel.DataAnnotations;
+global using System.ComponentModel.DataAnnotations.Schema;
 global using System.IO;
 global using System.Linq;
 global using System.Net;
@@ -44,6 +45,7 @@ global using System.Text.RegularExpressions;
 global using System.Threading;
 global using System.Threading.Tasks;
 global using System.Transactions;
+global using Microsoft.Extensions.Primitives;
 #if NETSTANDARD2_1
 global using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 #endif

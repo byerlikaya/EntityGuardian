@@ -2,6 +2,8 @@
 
 public interface IStorageService
 {
+    Task CreateDatabaseTables();
+
     Task Synchronization(CancellationToken cancellationToken);
 
     Task<ResponseData<IEnumerable<ChangeWrapper>>> ChangeWrappersAsync(ChangeWrapperRequest searchRequest);

@@ -1,26 +1,14 @@
 ﻿namespace EntityGuardian.BackgroundServices;
 
-public class DataBackgroundService : BackgroundService
+public class DataBackgroundService(IServiceProvider serviceProvider,
+    EntityGuardianOption configuration,
+    ILogger<DataBackgroundService> logger) : BackgroundService
 {
-    private readonly IStorageService _storageService;
-    private readonly ILogger<DataBackgroundService> _logger;
-    private readonly EntityGuardianOption _configuration;
     private DateTime _nextRunTime = DateTime.UtcNow;
-
-
-    public DataBackgroundService(
-        EntityGuardianOption configuration,
-        IStorageService storageService,
-        ILogger<DataBackgroundService> logger)
-    {
-        _configuration = configuration;
-        _storageService = storageService;
-        _logger = logger;
-    }
 
     public override Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("EntityGuardian Background Service is starting.");
+        logger.LogInformation("EntityGuardian Background Service is starting.");
         return base.StartAsync(cancellationToken);
     }
 
@@ -30,24 +18,28 @@ public class DataBackgroundService : BackgroundService
         {
             try
             {
-                _logger.LogInformation("EntityGuardian Background Service is working.");
+                logger.LogInformation("EntityGuardian Background Service is working.");
 
                 await Task.Delay(GetDelayTime(), cancellationToken);
 
-                await _storageService.Synchronization(cancellationToken);
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var storageService = scope.ServiceProvider.GetRequiredService<IStorageService>();
+                    await storageService.Synchronization(cancellationToken);
+                }
 
                 _nextRunTime = GetNextDate();
             }
             catch (Exception exception)
             {
-                _logger.LogError($"EntityGuardian Background Service encountered an error. Error Message : {exception.Message}");
+                logger.LogError($"EntityGuardian Background Service encountered an error. Error Message : {exception.Message}");
             }
         }
     }
 
     public override Task StopAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("EntityGuardian Background Service has been stopped.");
+        logger.LogInformation("EntityGuardian Background Service has been stopped.");
         return base.StopAsync(cancellationToken);
     }
 
@@ -63,7 +55,7 @@ public class DataBackgroundService : BackgroundService
         return (int)DelayTime();
     }
 
-    private DateTime GetNextDate() => DateTime.UtcNow.AddSeconds(_configuration.DataSynchronizationTimeout);
+    private DateTime GetNextDate() => DateTime.UtcNow.AddSeconds(configuration.DataSynchronizationTimeout);
 
     private double DelayTime() => (_nextRunTime - DateTime.UtcNow).TotalMilliseconds;
 }

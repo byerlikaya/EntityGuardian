@@ -1,8 +1,13 @@
 ﻿$(document).ready(function () {
 
-    $("#mainEntity").keyup(function () {
+    $("#contextId").keyup(function () {
         $('#entity-guardian-table').DataTable().ajax.reload();
     });
+
+    $("#entities").keyup(function () {
+        $('#entity-guardian-table').DataTable().ajax.reload();
+    });
+
     $("#transactionCount").keyup(function () {
         $('#entity-guardian-table').DataTable().ajax.reload();
     });
@@ -13,11 +18,7 @@
 
     $("#ipaddress").keyup(function () {
         $('#entity-guardian-table').DataTable().ajax.reload();
-    });
-
-    $("#order").keyup(function () {
-        $('#entity-guardian-detail-table').DataTable().ajax.reload();
-    });
+    });  
 
     $("#transactionType").keyup(function () {
         $('#entity-guardian-detail-table').DataTable().ajax.reload();
