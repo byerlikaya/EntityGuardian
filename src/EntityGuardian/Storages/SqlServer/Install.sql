@@ -1,21 +1,21 @@
 ﻿DECLARE @SchemaLockResult INT;
-EXEC @SchemaLockResult = sp_getapplock @Resource = '$(EntityGuardiaonSchemaName):SchemaLock', @LockMode = 'Exclusive'
+EXEC @SchemaLockResult = sp_getapplock @Resource = '$(EntityGuardianSchemaName):SchemaLock', @LockMode = 'Exclusive'
 
-IF NOT EXISTS (SELECT [schema_id] FROM [sys].[schemas] WHERE [name] = '$(EntityGuardiaonSchemaName)')
+IF NOT EXISTS (SELECT [schema_id] FROM [sys].[schemas] WHERE [name] = '$(EntityGuardianSchemaName)')
 BEGIN
-    EXEC (N'CREATE SCHEMA [$(EntityGuardiaonSchemaName)]');
-    PRINT 'Created database schema [$(EntityGuardiaonSchemaName)]';
+    EXEC (N'CREATE SCHEMA [$(EntityGuardianSchemaName)]');
+    PRINT 'Created database schema [$(EntityGuardianSchemaName)]';
 END
 
 DECLARE @SCHEMA_ID int;
-SELECT @SCHEMA_ID = [schema_id] FROM [sys].[schemas] WHERE [name] = '$(EntityGuardiaonSchemaName)';
+SELECT @SCHEMA_ID = [schema_id] FROM [sys].[schemas] WHERE [name] = '$(EntityGuardianSchemaName)';
 
 IF NOT EXISTS (SELECT name FROM [sys].[tables] WHERE name = 'Change' AND [schema_id] = @SCHEMA_ID)
 BEGIN
 
     SET ANSI_NULLS ON
     SET QUOTED_IDENTIFIER ON
-    CREATE TABLE [$(EntityGuardiaonSchemaName)].[Change]
+    CREATE TABLE [$(EntityGuardianSchemaName)].[Change]
     (
         [Guid] [uniqueidentifier] NOT NULL,
         [ChangeWrapperGuid] [uniqueidentifier] NOT NULL,
@@ -43,7 +43,7 @@ IF NOT EXISTS
 BEGIN
     SET ANSI_NULLS ON
     SET QUOTED_IDENTIFIER ON
-    CREATE TABLE [$(EntityGuardiaonSchemaName)].[ChangeWrapper]
+    CREATE TABLE [$(EntityGuardianSchemaName)].[ChangeWrapper]
     (
         [Guid] [uniqueidentifier] NOT NULL,
         [DbContextId] [uniqueidentifier] NOT NULL,
@@ -68,12 +68,12 @@ IF NOT EXISTS
 )
 BEGIN
 
-    ALTER TABLE [$(EntityGuardiaonSchemaName)].[Change] WITH CHECK
+    ALTER TABLE [$(EntityGuardianSchemaName)].[Change] WITH CHECK
     ADD CONSTRAINT [FK_Change_ChangeWrapper]
         FOREIGN KEY ([ChangeWrapperGuid])
-        REFERENCES [$(EntityGuardiaonSchemaName)].[ChangeWrapper] ([Guid])
+        REFERENCES [$(EntityGuardianSchemaName)].[ChangeWrapper] ([Guid])
 
-    ALTER TABLE [$(EntityGuardiaonSchemaName)].[Change] CHECK CONSTRAINT [FK_Change_ChangeWrapper]
+    ALTER TABLE [$(EntityGuardianSchemaName)].[Change] CHECK CONSTRAINT [FK_Change_ChangeWrapper]
 END
 
 

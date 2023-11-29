@@ -5,15 +5,15 @@ internal class SqlServerStorage(
     EntityGuardianOption options,
     EntityGuardianDbContext context) : IStorageService
 {
-    public async Task CreateDatabaseTables()
+    public void CreateDatabaseTables()
     {
-        await context.Database.ExecuteSqlRawAsync(GetSqlScript(options.EntityGuardianSchemaName));
+        context.Database.ExecuteSqlRaw(GetSqlScript(options.EntityGuardianSchemaName));
 
         if (!options.ClearDataOnStartup)
             return;
 
-        await context.Database.ExecuteSqlRawAsync($"DELETE FROM {SchemaName(options.EntityGuardianSchemaName)}.Change");
-        await context.Database.ExecuteSqlRawAsync($"DELETE FROM {SchemaName(options.EntityGuardianSchemaName)}.ChangeWrapper");
+        context.Database.ExecuteSqlRaw($"DELETE FROM {SchemaName(options.EntityGuardianSchemaName)}.Change");
+        context.Database.ExecuteSqlRaw($"DELETE FROM {SchemaName(options.EntityGuardianSchemaName)}.ChangeWrapper");
     }
 
     public async Task Synchronization(CancellationToken cancellationToken)
@@ -83,7 +83,7 @@ internal class SqlServerStorage(
 
     private static string GetSqlScript(string schema) =>
         GetStringResource(typeof(SqlServerStorage).GetTypeInfo().Assembly, "EntityGuardian.Storages.SqlServer.Install.sql")
-            .Replace("$(EntityGuardiaonSchemaName)", schema);
+            .Replace("$(EntityGuardianSchemaName)", schema);
 
     private static string GetStringResource(Assembly assembly, string resourceName)
     {
