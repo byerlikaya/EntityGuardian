@@ -9,6 +9,13 @@ public class DataBackgroundService(IServiceProvider serviceProvider,
     public override Task StartAsync(CancellationToken cancellationToken)
     {
         logger.LogInformation("EntityGuardian Background Service is starting.");
+
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var storageService = scope.ServiceProvider.GetRequiredService<IStorageService>();
+            storageService.CreateDatabaseTables();
+        }
+
         return base.StartAsync(cancellationToken);
     }
 
