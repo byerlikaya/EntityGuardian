@@ -8,7 +8,7 @@ internal static class PathExtensions
             return PageType.None;
 
         if (pathString.IsRedirect(routePrefix))
-            return PageType.None;
+            return PageType.Redirect;
         if (pathString.IsIndexHtml(routePrefix))
             return PageType.Index;
         if (pathString.IsDataHtml(routePrefix))
