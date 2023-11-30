@@ -1,12 +1,12 @@
 // Global using directives
 
 global using EntityGuardian.BackgroundServices;
+global using EntityGuardian.Dashboard;
 global using EntityGuardian.Entities;
 global using EntityGuardian.Entities.Dtos;
 global using EntityGuardian.Enums;
 global using EntityGuardian.Extensions;
 global using EntityGuardian.Interfaces;
-global using EntityGuardian.Middlewares;
 global using EntityGuardian.Options;
 global using EntityGuardian.Storages;
 global using EntityGuardian.Storages.SqlServer;
@@ -24,6 +24,7 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.FileProviders;
 global using Microsoft.Extensions.Hosting;
 global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Primitives;
 global using SmartOrderBy;
 global using SmartOrderBy.Dtos;
 global using SmartWhere;
@@ -45,7 +46,6 @@ global using System.Text.RegularExpressions;
 global using System.Threading;
 global using System.Threading.Tasks;
 global using System.Transactions;
-global using Microsoft.Extensions.Primitives;
 #if NETSTANDARD2_1
 global using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 #endif

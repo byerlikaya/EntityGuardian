@@ -17,11 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Dashboard\favicon.ico" />
     <EmbeddedResource Include="Storages\SqlServer\Install.sql" />
-    <EmbeddedResource Include="Dashboard/html/**/*" />
-    <EmbeddedResource Include="Dashboard/css/**/*" />
-    <EmbeddedResource Include="Dashboard/js/**/*" />
+    <EmbeddedResource Include="Dashboard/wwwroot/**/*" />
   </ItemGroup>
   
 
@@ -46,16 +43,12 @@
   </ItemGroup>
   
   <ItemGroup>
-    <None Remove="Dashboard\js\filter.js" />
-  </ItemGroup>
-  
-  <ItemGroup>
     <PackageReference Include="Castle.Core" Version="5.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="7.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.0" />
     <PackageReference Include="SmartOrderBy" Version="1.0.0.1" />
     <PackageReference Include="SmartWhere" Version="2.1.1.2" />
-    <PackageReference Include="System.Text.Json" Version="7.0.3" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
   </ItemGroup>
 

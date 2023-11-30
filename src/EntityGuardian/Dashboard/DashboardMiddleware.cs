@@ -1,24 +1,21 @@
-﻿namespace EntityGuardian.Middlewares;
+﻿namespace EntityGuardian.Dashboard;
 
 public class DashboardMiddleware
 {
     private IStorageService _storageService;
-    private readonly IWebHostEnvironment _webHostEnvironment;
-    private readonly ILoggerFactory _loggerFactory;
     private readonly EntityGuardianOption _options;
     private readonly StaticFileMiddleware _staticFileMiddleware;
+
+    private const string EmbeddedFileNamespace = "EntityGuardian.Dashboard.wwwroot";
 
     public DashboardMiddleware(
         IWebHostEnvironment webHostEnvironment,
         ILoggerFactory loggerFactory,
         EntityGuardianOption options,
-        RequestDelegate next
-       )
+        RequestDelegate next)
     {
-        _webHostEnvironment = webHostEnvironment;
-        _loggerFactory = loggerFactory;
         _options = options;
-        _staticFileMiddleware = CreateStaticFileMiddleware(next);
+        _staticFileMiddleware = CreateStaticFileMiddleware(next, webHostEnvironment, loggerFactory);
     }
 
     public async Task Invoke(HttpContext httpContext, IStorageService storageService)
@@ -40,7 +37,7 @@ public class DashboardMiddleware
 
         var pageType = httpRequest.Path.GetPageType(_options.RoutePrefix) switch
         {
-            PageType.None => RespondWithRedirect(httpContext),
+            PageType.Redirect => RespondWithRedirect(httpContext),
             PageType.Index => await RespondWithIndexHtml(httpContext),
             PageType.Data => await RespondWithDataHtml(httpContext),
             PageType.ChangeWrapperDetail => await RespondWithChangeWrapperDetailHtml(httpContext),
@@ -71,7 +68,7 @@ public class DashboardMiddleware
         httpContext.Response.StatusCode = HttpStatusCode.MovedPermanently.GetHashCode();
         httpContext.Response.Headers["Location"] = relativeIndexUrl;
 
-        return PageType.None;
+        return PageType.Redirect;
     }
 
     private async Task<PageType> RespondWithIndexHtml(HttpContext httpContext)
@@ -166,10 +163,9 @@ public class DashboardMiddleware
 
     private static void SetChangeWrapperEntites(IEnumerable<ChangeWrapper> changeWrappers)
     {
-        var entties = new List<string>();
-
         foreach (var changeWrapper in changeWrappers)
         {
+            var entties = new List<string>();
             StringBuilder stringBuilder = new();
             foreach (var change in changeWrapper.Changes.Distinct())
             {
@@ -269,36 +265,37 @@ public class DashboardMiddleware
         => typeof(DashboardMiddleware)
             .GetTypeInfo()
             .Assembly
-            .GetManifestResourceStream("EntityGuardian.Dashboard.html.index.html");
+            .GetManifestResourceStream($"{EmbeddedFileNamespace}.html.index.html");
 
     private Func<Stream> DataStream { get; } = ()
         => typeof(DashboardMiddleware)
             .GetTypeInfo()
             .Assembly
-            .GetManifestResourceStream("EntityGuardian.Dashboard.html.data.html");
+            .GetManifestResourceStream($"{EmbeddedFileNamespace}.html.data.html");
 
     private Func<Stream> ChangeWrapperDetailStream { get; } = ()
         => typeof(DashboardMiddleware)
             .GetTypeInfo()
             .Assembly
-            .GetManifestResourceStream("EntityGuardian.Dashboard.html.change-wrapper-detail.html");
+            .GetManifestResourceStream($"{EmbeddedFileNamespace}.html.change-wrapper-detail.html");
 
     private Func<Stream> ChangeDetailStream { get; } = ()
         => typeof(DashboardMiddleware)
             .GetTypeInfo()
             .Assembly
-            .GetManifestResourceStream("EntityGuardian.Dashboard.html.change-detail.html");
+            .GetManifestResourceStream($"{EmbeddedFileNamespace}.html.change-detail.html");
 
-    private StaticFileMiddleware CreateStaticFileMiddleware(RequestDelegate next)
+    private StaticFileMiddleware CreateStaticFileMiddleware(RequestDelegate next,
+        IWebHostEnvironment webHostEnvironment, ILoggerFactory loggerFactory)
     {
         var staticFileOptions = new StaticFileOptions
         {
             RequestPath = string.IsNullOrEmpty(_options.RoutePrefix)
                 ? string.Empty
                 : $"/{_options.RoutePrefix}",
-            FileProvider = new EmbeddedFileProvider(typeof(DashboardMiddleware).GetTypeInfo().Assembly, "EntityGuardian.Dashboard"),
+            FileProvider = new EmbeddedFileProvider(typeof(EntityGuardianInterceptor).GetTypeInfo().Assembly, EmbeddedFileNamespace)
         };
 
-        return new StaticFileMiddleware(next, _webHostEnvironment, Microsoft.Extensions.Options.Options.Create(staticFileOptions), _loggerFactory);
+        return new StaticFileMiddleware(next, webHostEnvironment, Microsoft.Extensions.Options.Options.Create(staticFileOptions), loggerFactory);
     }
 }
