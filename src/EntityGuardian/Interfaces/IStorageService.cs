@@ -2,7 +2,7 @@
 
 public interface IStorageService
 {
-    Task CreateDatabaseTables();
+    void CreateDatabaseTables();
 
     Task Synchronization(CancellationToken cancellationToken);
 

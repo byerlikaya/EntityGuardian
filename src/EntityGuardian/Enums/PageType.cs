@@ -3,6 +3,7 @@
 internal enum PageType
 {
     None,
+    Redirect,
     Index,
     Data,
     ChangeWrapperDetail,
