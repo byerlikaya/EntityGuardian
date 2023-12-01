@@ -55,7 +55,7 @@ app.UseEntityGuardian();
 ```
 
 
-Stand up your project, go to /entity-guardian and keep track of all changes.
+Stand up your project, go to `/entity-guardian` and keep track of all changes.
 
 ### Transactions
 ![1](https://github.com/byerlikaya/EntityGuardian/assets/9534517/e1bd4ce2-fd67-4ebf-862a-ab2d618fc45f)
