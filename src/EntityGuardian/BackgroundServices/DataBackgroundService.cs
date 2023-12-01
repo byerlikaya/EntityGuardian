@@ -1,7 +1,7 @@
 ﻿namespace EntityGuardian.BackgroundServices;
 
 public class DataBackgroundService(IServiceProvider serviceProvider,
-    EntityGuardianOption configuration,
+    EntityGuardianOption options,
     ILogger<DataBackgroundService> logger) : BackgroundService
 {
     private DateTime _nextRunTime = DateTime.UtcNow;
@@ -62,7 +62,7 @@ public class DataBackgroundService(IServiceProvider serviceProvider,
         return (int)DelayTime();
     }
 
-    private DateTime GetNextDate() => DateTime.UtcNow.AddSeconds(configuration.DataSynchronizationTimeout);
+    private DateTime GetNextDate() => DateTime.UtcNow.AddSeconds(options.DataSynchronizationTimeout);
 
     private double DelayTime() => (_nextRunTime - DateTime.UtcNow).TotalMilliseconds;
 }

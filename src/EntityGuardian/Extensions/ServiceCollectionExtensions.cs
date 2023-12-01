@@ -5,11 +5,11 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddEntityGuardian(
         this IServiceCollection services,
         string connectionString,
-        Action<EntityGuardianOption> configuration)
+        Action<EntityGuardianOption> options)
     {
-        ArgumentNullControl(services, connectionString, configuration);
+        ArgumentNullControl(services, connectionString, options);
 
-        SingletonServices(services, configuration);
+        SingletonServices(services, options);
 
         ScopedServices(services, connectionString);
 
@@ -29,7 +29,7 @@ public static class ServiceCollectionExtensions
 
     private static void SingletonServices(
         IServiceCollection services,
-        Action<EntityGuardianOption> configuration)
+        Action<EntityGuardianOption> options)
     {
         services.AddMemoryCache();
 
@@ -39,9 +39,9 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton(_ =>
         {
-            var configurationInstance = new EntityGuardianOption();
-            configuration(configurationInstance);
-            return configurationInstance;
+            var optionInstance = new EntityGuardianOption();
+            options(optionInstance);
+            return optionInstance;
         });
 
         services.AddHostedService<DataBackgroundService>();
@@ -50,10 +50,10 @@ public static class ServiceCollectionExtensions
     private static void ArgumentNullControl(
         IServiceCollection services,
         string connectionString,
-        Action<EntityGuardianOption> configuration)
+        Action<EntityGuardianOption> options)
     {
         if (services is null) throw new ArgumentNullException(nameof(services));
-        if (configuration is null) throw new ArgumentNullException(nameof(configuration));
+        if (options is null) throw new ArgumentNullException(nameof(options));
         if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentNullException(connectionString);
     }
 }
