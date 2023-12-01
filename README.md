@@ -17,9 +17,10 @@ PM> Install-Package EntityGuardian
 2. Add the `EntityGuardianInterceptor` interceptor.
 
 ```csharp
-builder.Services.AddDbContext<[Your_DbContext]>(
+builder.Services.AddDbContext<MemoryDbContext>(
     (serviceProvider, options) =>
-        options.AddInterceptors(serviceProvider.GetRequiredService<EntityGuardianInterceptor>()));
+        options.AddInterceptors(
+            serviceProvider.GetRequiredService<EntityGuardianInterceptor>()));
 ```
 
 3. Add and configure builder.Services.AddEntityGuardian().
