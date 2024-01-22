@@ -58,13 +58,13 @@ app.UseEntityGuardian();
 Stand up your project, go to /entity-guardian and keep track of all changes.
 
 ### Transactions
-![1](https://github.com/byerlikaya/EntityGuardian/assets/9534517/e1bd4ce2-fd67-4ebf-862a-ab2d618fc45f)
+![1](https://github.com/byerlikaya/EntityGuardian/blob/main/src/EntityGuardian/Dashboard/wwwroot/img/transactions.png)
 
 ### Transaction Details
-![2](https://github.com/byerlikaya/EntityGuardian/assets/9534517/3aeba852-92bf-4ce3-a6ba-a115abcfcf38)
+![2](https://github.com/byerlikaya/EntityGuardian/blob/main/src/EntityGuardian/Dashboard/wwwroot/img/transaction-details.png)
 
 ### Transaction Detail
-![3](https://github.com/byerlikaya/EntityGuardian/assets/9534517/8be01a74-a958-4a04-bf9f-704398a138c7)
+![3](https://github.com/byerlikaya/EntityGuardian/blob/main/src/EntityGuardian/Dashboard/wwwroot/img/transaction-detail.png)
 
 Future planned developments.
 
