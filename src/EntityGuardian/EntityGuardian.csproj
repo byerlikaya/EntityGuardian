@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netcoreapp3.1;net5.0;net6.0;net7.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageId>EntityGuardian</PackageId>
-    <Version>1.0.0.1</Version>
+    <Version>2.0.0</Version>
     <Authors>Barış Yerlikaya</Authors>
     <Company>Barış Yerlikaya</Company>
     <Product>EntityGuardian</Product>
@@ -26,27 +26,6 @@
     <EmbeddedResource Include="Dashboard/wwwroot/**/*" />
   </ItemGroup>
   
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' OR '$(TargetFramework)' == 'netcoreapp3.1' OR '$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.17" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.34" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.15" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.15" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)'=='net8.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.1" />
-  </ItemGroup>
-  
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.1' ">
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  
   <ItemGroup>
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>
@@ -60,12 +39,16 @@
   
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="5.1.1" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.1" />
-    <PackageReference Include="SmartOrderBy" Version="1.1.0" />
-    <PackageReference Include="SmartWhere" Version="2.2.0.1" />
-    <PackageReference Include="System.Text.Json" Version="8.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.2" />
+    <PackageReference Include="SmartOrderBy" Version="1.1.0.1" />
+    <PackageReference Include="SmartWhere" Version="2.2.0.2" />
+    <PackageReference Include="System.Text.Json" Version="8.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="[2.1.1]"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="[2.1.34]" />
   </ItemGroup>
 
 </Project>
