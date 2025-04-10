@@ -244,6 +244,7 @@ public class DashboardMiddleware
         var guid = Guid.Parse(httpContext.Request.Query["guid"]);
 
         var transactionType = httpContext.Request.Query["transactionType"];
+
         var entityName = httpContext.Request.Query["entityName"];
 
         return new ChangesRequest

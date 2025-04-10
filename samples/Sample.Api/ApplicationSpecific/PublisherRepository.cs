@@ -8,8 +8,8 @@ public class PublisherRepository(MemoryDbContext context) : IPublisherRepository
         {
             Id = new Random().Next(1, 99999),
             Name = "Publisher",
-            Books = new List<Book>
-            {
+            Books =
+            [
                 new() {
                     Name = "Book 1",
                     Id = new Random().Next(1, 99999),
@@ -21,7 +21,7 @@ public class PublisherRepository(MemoryDbContext context) : IPublisherRepository
                         Age = 30
                     }
                 }
-            }
+            ]
         };
 
         await context.Publishers.AddAsync(publisher);

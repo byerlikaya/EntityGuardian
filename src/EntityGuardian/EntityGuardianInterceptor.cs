@@ -36,7 +36,7 @@ public class EntityGuardianInterceptor(
             IpAddress = connection?.RemoteIpAddress?.ToString(),
             TransactionDate = DateTime.UtcNow,
             Username = user?.Identity?.Name ?? "undefined",
-            Changes = new List<Change>()
+            Changes = []
         };
 
         foreach (var entityEntry in dbContext.BringTheEntriesToBeAffected())
@@ -64,11 +64,7 @@ public class EntityGuardianInterceptor(
 
         if (_cacheManager.IsExists(key))
         {
-#if NET6_0_OR_GREATER
             key = $"{key}_{Random.Shared.Next(0, 99999)}";
-#else
-            key = $"{key}_{new Random().Next(0, 99999)}";
-#endif
         }
 
         _changeWrapper.DbContextId = contextId;

@@ -37,7 +37,7 @@ internal class CacheManager : ICacheManager
 
         var cacheEntriesCollectionDefinition = coherentStateValue?
             .GetType()
-            .GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance);
+            .GetProperty("StringEntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance);
 
         return cacheEntriesCollectionDefinition?.GetValue(coherentStateValue) as IEnumerable ?? Enumerable.Empty<object>();
     }
